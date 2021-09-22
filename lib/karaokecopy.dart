@@ -7,8 +7,6 @@ import 'package:music_player/helpers/get_directory_lyrics.dart';
 import 'package:ocarina/ocarina.dart';
 import 'package:path_provider/path_provider.dart';
 import 'helpers/get_directory_music.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'dart:convert';
 
 void main() async {
   runApp(const MyApp());

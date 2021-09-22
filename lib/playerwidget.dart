@@ -1,10 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
-import 'package:music_player/helpers/get_directory_lyrics.dart';
 import 'package:music_player/playpausebutton.dart';
-import 'package:ocarina/ocarina.dart';
 import 'package:audiotagger/audiotagger.dart';
 import 'main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -14,8 +11,8 @@ class PlayerWidget extends StatefulWidget {
   bool playing;
   String currentSong;
   String currentArtist;
-  BoolConsumer setPlaying;
-  final tagger = new Audiotagger();
+  final BoolConsumer setPlaying;
+  final tagger = Audiotagger();
   PlayerWidget(
       {Key? key,
       required this.playing,
@@ -31,7 +28,7 @@ class PlayerWidget extends StatefulWidget {
 
 class _PlayerWidgetState extends State<PlayerWidget> {
   bool playing;
-  final tagger = new Audiotagger();
+  final tagger = Audiotagger();
   _PlayerWidgetState(this.playing);
 
   songNameLength(songName) {
@@ -61,9 +58,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   artistNameLength(artistName) {
     if (artistName == "") {
-      return Text(
+      return const Text(
         "<unknown>",
-        style: const TextStyle(fontSize: 13),
+        style: TextStyle(fontSize: 13),
       );
     }
     if (artistName.toString().length > 24) {
@@ -93,7 +90,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print("_PlayerWidgetState.build currentSong = ${widget.currentSong}");
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.currentSong),
@@ -115,7 +111,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                       return snapshot.data!;
                     }
 
-                    return Container(child: CircularProgressIndicator());
+                    return const CircularProgressIndicator();
                   },
                 );
               }).toList(),
@@ -187,7 +183,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     if (i == 1) {
       return await getArtwork();
     } else {
-      return Text('data');
+      return const Text('data');
     }
   }
 
@@ -207,9 +203,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 }
 
 class PositionSliderWidget extends StatefulWidget {
-  double maxPosition;
-  Player player;
-  PositionSliderWidget(
+  final double maxPosition;
+  final Player player;
+  const PositionSliderWidget(
       {Key? key, required this.maxPosition, required this.player})
       : super(key: key);
 
@@ -223,12 +219,11 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
   Timer? timer;
 
   startTimer() {
-    timer = Timer.periodic(Duration(milliseconds: 300), onTimer);
+    timer = Timer.periodic(const Duration(milliseconds: 300), onTimer);
   }
 
   onTimer(Timer timer) async {
     if (widget.player.isLoaded()) {
-    print('player.position ${widget.player.hashCode}');
     var newPosition = await widget.player.position();
     if (!disposed) {
       setState(() {
@@ -247,7 +242,6 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     startTimer();
   }

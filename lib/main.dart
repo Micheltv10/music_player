@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -132,8 +131,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   smallPlayerWidget() {
     final size = MediaQuery.of(context).size;
-    if (player != null) {
-      if (player!.isLoaded()) {
+    
+      if (player.isLoaded()) {
         return SizedBox(
           width: double.infinity,
           height: 91,
@@ -151,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialPageRoute(
                       builder: (context) => PlayerWidget(
                             playing: playing!,
-                            player: player!,
+                            player: player,
                             currentArtist: currentArtist!,
                             currentSong: currentSong!,
                             setPlaying: setPlaying,
@@ -204,27 +203,27 @@ class _MyHomePageState extends State<MyHomePage> {
                           ],
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       Center(
                         child: PlayPauseButtonWidget(
-                          player: player!,
+                          player: player,
                           playing: playing!,
                           size: 32,
                           setPlaying: setPlaying,
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                     ],
                   ),
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
                       activeTrackColor: Colors.deepPurple,
                       inactiveTrackColor: Colors.deepPurpleAccent,
-                      trackShape: RoundedRectSliderTrackShape(),
+                      trackShape: const RoundedRectSliderTrackShape(),
                       trackHeight: 5.0,
                       thumbColor: Colors.purple,
-                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0),
-                      overlayShape: RoundSliderOverlayShape(overlayRadius: 8.0),
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0),
+                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 8.0),
                     ),
                     child: FutureBuilder<double>(
                         future: getSongDuration(currentSong),
@@ -232,7 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           return PositionSliderWidget(
                               maxPosition:
                                   snapshot.hasData ? snapshot.data! : 200000,
-                              player: player!);
+                              player: player);
                         }),
                   )
                 ],
@@ -258,24 +257,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }
-    } else {
-      return SizedBox(
-        width: double.infinity,
-        height: 75,
-        child: Container(
-          decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(20),
-              ),
-              color: Colors.deepPurple[300]),
-          child: const Center(
-              child: Text(
-            'No Song selcted',
-            style: TextStyle(fontSize: 30),
-          )),
-        ),
-      );
-    }
+    
   }
 
   @override
@@ -349,10 +331,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           final Map? map =
                               await tagger?.readTagsAsMap(path: filePath);
 
-                          final Map? audiomap =
-                              await tagger?.readAudioFileAsMap(path: filePath);
-
-                          
                           await player.load('storage/emulated/0/Download/${widget.songNames[index]}.mp3');
                           player.play();
                           nextSongTimer?.stopTimer();
@@ -366,7 +344,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             setPlaying(true);
                           });
                           nextSongTimer
-                              ?.startTimer(Duration(milliseconds: 500));
+                              ?.startTimer(const Duration(milliseconds: 500));
                         },
                       ),
                     ),
@@ -434,7 +412,7 @@ class NextSongTimer {
     final Map? audiomap = await tagger.readAudioFileAsMap(path: filePath);
     int length = audiomap!['length'];
 
-    int position = player?.isLoaded() == true ? (await player!.position()) : 0;
+    int position = player.isLoaded() == true ? (await player.position()) : 0;
 
     if (((position / 1000) + 1) >= length) {
       if (queue.isNotEmpty) {
@@ -446,7 +424,6 @@ class NextSongTimer {
           currentSong = queue[0];
           currentArtist = map?["artist"];
         });
-        print("_MyHomePageState.playNextSong currentSong = $currentSong");
         queue.removeAt(0);
       } else {
         final _random = Random();
@@ -456,12 +433,10 @@ class NextSongTimer {
             path: filePath);
         await player.load(filePath);
         await player.play();
-        print('player.dispose ${player?.hashCode}');
         setState(() {
           currentSong = newSong;
           currentArtist = map?["artist"];
         });
-        print("_MyHomePageState.playNextSong currentSong = $currentSong");
       }
     }
   }

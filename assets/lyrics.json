@@ -1,0 +1,21 @@
+{
+    "title": "Example text",
+    "Lyrics": [
+        {
+            "timestamp": 0,
+            "Line": "Hallo Welt"
+        },
+        {
+            "timestamp": 5,
+            "Line": "5 Sekunden"
+        },
+        {
+            "timestamp": 10,
+            "Line": "10 Sekunden"
+        },
+        {
+            "timestamp": 13,
+            "Line": "13 Sekunden"
+        }
+    ]
+}

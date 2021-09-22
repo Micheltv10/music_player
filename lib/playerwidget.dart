@@ -10,7 +10,7 @@ import 'main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class PlayerWidget extends StatefulWidget {
-  OcarinaPlayer player;
+  Player player;
   bool playing;
   String currentSong;
   String currentArtist;
@@ -93,6 +93,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    print("_PlayerWidgetState.build currentSong = ${widget.currentSong}");
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.currentSong),
@@ -207,7 +208,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
 class PositionSliderWidget extends StatefulWidget {
   double maxPosition;
-  OcarinaPlayer player;
+  Player player;
   PositionSliderWidget(
       {Key? key, required this.maxPosition, required this.player})
       : super(key: key);
@@ -227,8 +228,8 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
 
   onTimer(Timer timer) async {
     if (widget.player.isLoaded()) {
+    print('player.position ${widget.player.hashCode}');
     var newPosition = await widget.player.position();
-    print("_PositionSliderWidgetState.onTimer newPosition = $newPosition and maxPosition = ${widget.maxPosition}");
     if (!disposed) {
       setState(() {
         position = newPosition;
@@ -254,8 +255,7 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
   @override
   Widget build(BuildContext context) {
     if ((position / 1000) > widget.maxPosition) {
-      print("_PositionSliderWidgetState.build position > maxPosition");
-      position = 0;
+      position = widget.maxPosition.toInt() * 1000;
     }
     return Column(
       children: [

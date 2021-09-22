@@ -11,8 +11,10 @@ import 'package:audiotagger/audiotagger.dart';
 import 'playerwidget.dart';
 
 typedef BoolConsumer = void Function(bool value);
+typedef SetStateFunction = void Function(void Function() fn);
 void main() async {
   runApp(MyApp(
+    player: Player(),
     songNames: await getDirectoriesMusic(),
   ));
 }
@@ -20,7 +22,8 @@ void main() async {
 // ignore: must_be_immutable
 class MyApp extends StatelessWidget {
   List<String> songNames;
-  MyApp({Key? key, required this.songNames}) : super(key: key);
+  final Player player;
+  MyApp({Key? key, required this.songNames, required this.player}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -32,13 +35,15 @@ class MyApp extends StatelessWidget {
         home: MyHomePage(
           title: 'Home',
           songNames: songNames,
+          player: player,
         ),
       );
 }
 
 // ignore: must_be_immutable
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title, required this.songNames})
+  final Player player;
+  MyHomePage({Key? key, required this.title, required this.songNames, required this.player})
       : super(key: key);
   List<String> songNames;
   final String title;
@@ -49,13 +54,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final SlidableController slidableController = SlidableController();
-  OcarinaPlayer? player;
+  Player get player => widget.player;
   bool? playing;
-  String? currentSong;
-  String? currentArtist;
-  List? queue;
-  final tagger = Audiotagger();
-  bool timerStarted = false;
+  String? get currentSong => nextSongTimer?.currentSong;
+  String? get currentArtist => nextSongTimer?.currentArtist;
+  Audiotagger? get tagger => nextSongTimer?.tagger;
+
+  NextSongTimer? nextSongTimer;
 
   void setPlaying(bool value) {
     setState(() {
@@ -63,9 +68,20 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  @override
+  initState() {
+    super.initState();
+    nextSongTimer = NextSongTimer(
+        currentSong: null,
+        currentArtist: null,
+        player: Player(),
+        songNames: widget.songNames,
+        setState: setState);
+  }
+
   Future<double> getSongDuration(songName) async {
     String filePath = "storage/emulated/0/Download/$songName.mp3";
-    final Map? audiomap = await tagger.readAudioFileAsMap(path: filePath);
+    final Map? audiomap = await tagger?.readAudioFileAsMap(path: filePath);
     int length = audiomap!['length'];
     return length.toDouble();
   }
@@ -114,51 +130,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void startTimer(Duration time) => Timer.periodic(time, playNextSong);
-  void playNextSong(Timer timer) async {
-    String filePath = "storage/emulated/0/Download/$currentSong.mp3";
-    final Map? audiomap = await tagger.readAudioFileAsMap(path: filePath);
-    int length = audiomap!['length'];
-    int position = await player!.position();
-
-    if (((position / 1000) + 1) >= length) {
-      await player!.dispose();
-      if (queue != null) {
-        String filePathQueue = "storage/emulated/0/Download/${queue?[0]}.mp3";
-        final Map? map = await tagger.readTagsAsMap(path: filePathQueue);
-        final newPlayer = OcarinaPlayer(filePath: filePath);
-        await newPlayer.load();
-        await newPlayer.play();
-        setState(() {
-          player = newPlayer;
-          currentSong = queue![0];
-          currentArtist = map?["artist"];
-          
-        });
-        queue!.removeAt(0);
-      } else {
-        final _random = Random();
-        String newSong =
-            widget.songNames[_random.nextInt(widget.songNames.length)];
-        final Map? map = await tagger.readTagsAsMap(
-            path: 'storage/emulated/0/Download/$newSong.mp3');
-        final newPlayer =
-            OcarinaPlayer(filePath: "storage/emulated/0/Download/$newSong.mp3");
-        await newPlayer.load();
-        await newPlayer.play();
-        setState(() {
-          player = newPlayer;
-          currentSong = newSong;
-          currentArtist = map?["artist"];
-          
-        });
-      }
-    } else {
-      print(
-          '_MyHomePageState.playNextSong position = ${(position / 1000).toString()}');
-    }
-  }
-
   smallPlayerWidget() {
     final size = MediaQuery.of(context).size;
     if (player != null) {
@@ -174,6 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.deepPurple[300]),
             child: GestureDetector(
               onTap: () {
+                nextSongTimer?.stopTimer();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -342,12 +314,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.green,
                         closeOnTap: false,
                         onTap: () async {
-                          if (queue == null) {
-                            queue = [(widget.songNames[index])];
-                          } else {
-                            queue!.add(widget.songNames[index]);
-                          }
-                          print(queue);
+                          nextSongTimer?.addToQueue(widget.songNames[index]);
                         },
                       )
                     ],
@@ -375,36 +342,31 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         onTap: () async {
-                          if (player != null) {
-                            if (player!.isLoaded()) {
-                              await player!.dispose();
-                            }
-                          }
+                          
 
                           final String filePath =
                               "/storage/emulated/0/Download/${widget.songNames[index]}.mp3";
                           final Map? map =
-                              await tagger.readTagsAsMap(path: filePath);
+                              await tagger?.readTagsAsMap(path: filePath);
 
                           final Map? audiomap =
-                              await tagger.readAudioFileAsMap(path: filePath);
+                              await tagger?.readAudioFileAsMap(path: filePath);
 
-                          final newplayer = OcarinaPlayer(
-                              filePath:
-                                  'storage/emulated/0/Download/${widget.songNames[index]}.mp3');
-                          await newplayer.load();
-                          newplayer.play();
-
+                          
+                          await player.load('storage/emulated/0/Download/${widget.songNames[index]}.mp3');
+                          player.play();
+                          nextSongTimer?.stopTimer();
                           setState(() {
-                            currentSong = widget.songNames[index];
-                            currentArtist = map?["artist"];
-                            player = newplayer;
+                            nextSongTimer = NextSongTimer(
+                                currentSong: widget.songNames[index],
+                                currentArtist: map?["artist"],
+                                player: player,
+                                songNames: widget.songNames,
+                                setState: setState);
                             setPlaying(true);
                           });
-                          if (!timerStarted) {
-                            timerStarted = true;
-                            startTimer(const Duration(milliseconds: 500));
-                          }
+                          nextSongTimer
+                              ?.startTimer(Duration(milliseconds: 500));
                         },
                       ),
                     ),
@@ -428,12 +390,122 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<Widget> getArtwork(songName) async {
     Widget artwork;
     final String filePath = "/storage/emulated/0/Download/$songName.mp3";
-    final output = await tagger.readArtwork(path: filePath);
+    final output = await tagger?.readArtwork(path: filePath);
     artwork = output != null
         ? Image.memory(output)
         : const Icon(
             Icons.music_note,
           );
     return artwork;
+  }
+}
+
+class NextSongTimer {
+  String? currentSong;
+
+  final tagger = Audiotagger();
+
+  Player player;
+
+  List<String> queue = [];
+  SetStateFunction setState;
+  List<String> songNames;
+  Timer? timer;
+  String? currentArtist;
+
+  NextSongTimer(
+      {required this.currentSong,
+      this.currentArtist,
+      required this.songNames,
+      required this.player,
+      required this.setState});
+
+  void startTimer(Duration time) {
+    timer?.cancel();
+    timer = Timer.periodic(time, playNextSong);
+  }
+
+  void stopTimer() {
+    timer?.cancel();
+  }
+
+  void playNextSong(Timer timer) async {
+    String filePath = "storage/emulated/0/Download/$currentSong.mp3";
+    final Map? audiomap = await tagger.readAudioFileAsMap(path: filePath);
+    int length = audiomap!['length'];
+
+    int position = player?.isLoaded() == true ? (await player!.position()) : 0;
+
+    if (((position / 1000) + 1) >= length) {
+      if (queue.isNotEmpty) {
+        String filePathQueue = "storage/emulated/0/Download/${queue[0]}.mp3";
+        final Map? map = await tagger.readTagsAsMap(path: filePathQueue);
+        await player.load(filePathQueue);
+        await player.play();
+        setState(() {
+          currentSong = queue[0];
+          currentArtist = map?["artist"];
+        });
+        print("_MyHomePageState.playNextSong currentSong = $currentSong");
+        queue.removeAt(0);
+      } else {
+        final _random = Random();
+        String newSong = songNames[_random.nextInt(songNames.length)];
+        String filePath = "storage/emulated/0/Download/$newSong.mp3";
+        final Map? map = await tagger.readTagsAsMap(
+            path: filePath);
+        await player.load(filePath);
+        await player.play();
+        print('player.dispose ${player?.hashCode}');
+        setState(() {
+          currentSong = newSong;
+          currentArtist = map?["artist"];
+        });
+        print("_MyHomePageState.playNextSong currentSong = $currentSong");
+      }
+    }
+  }
+
+  addToQueue(songName) {
+    queue.add(songName);
+  }
+}
+
+class Player {
+  OcarinaPlayer? currentPlayer;
+  OcarinaPlayer? pendingPlayer;
+  Future<void> load(filePath) {
+    pendingPlayer = OcarinaPlayer(filePath: filePath);
+    return pendingPlayer?.load() ?? Future.value(null);
+  }
+  Future<void> play(){
+    if (pendingPlayer != null) {
+      if (currentPlayer != null) {
+        currentPlayer?.dispose();
+        
+      }
+      currentPlayer = pendingPlayer;
+      pendingPlayer = null;
+
+    }
+    return currentPlayer?.play()  ?? Future.value(null);
+  }
+  Future<void> pause(){
+    return currentPlayer?.pause() ?? Future.value(null);
+  }
+  void dispose() {
+    currentPlayer?.dispose();
+    currentPlayer = null;
+    pendingPlayer?.dispose();
+    pendingPlayer = null;
+  }
+  Future<int> position() {
+    return currentPlayer?.position() ?? Future.value(0);
+  }
+  bool isLoaded() {
+    return currentPlayer?.isLoaded() ?? false;
+  }
+  Future<void> seek(Duration duration) {
+    return currentPlayer?.seek(duration) ?? Future.value(null);
   }
 }

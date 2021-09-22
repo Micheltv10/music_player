@@ -4,7 +4,7 @@ import 'package:ocarina/ocarina.dart';
 
 class PlayPauseButtonWidget extends StatefulWidget {
   final bool playing;
-  final OcarinaPlayer player;
+  final Player player;
   final int size;
   final BoolConsumer setPlaying;
   PlayPauseButtonWidget({ Key? key, required this.playing, required this.player, required this.size, required this.setPlaying}) : super(key: key);

@@ -1,27 +1,35 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:ocarina/ocarina.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/widgets.dart';
+import 'main.dart';
 
 class KaraokeWidget extends StatefulWidget {
-  String songName;
-  OcarinaPlayer player;
-  KaraokeWidget({ Key? key, required this.songName, required this.player}) : super(key: key);
+  final String songName;
+  final Player player;
+  const KaraokeWidget({Key? key, required this.songName, required this.player})
+      : super(key: key);
 
   @override
   _KaraokeWidgetState createState() => _KaraokeWidgetState();
 }
 
 class _KaraokeWidgetState extends State<KaraokeWidget> {
-  String currentLyricLine = "Nix";
-  void startTimer(Duration time) => Timer.periodic(time, updateLyricLine);
+  String oldLyricLine = "";
+  String currentLyricLine = "";
+  String nextLyricLine = "";
+  Timer? timer;
+  bool disposed = false;
 
-  void updateLyricLine(Timer timer) async{
+  void startTimer(Duration time) {
+    Timer timer = Timer.periodic(time, updateLyricLine);
+  }
+
+  void updateLyricLine(Timer timer) async {
     double currenttime = 0;
-    await widget.player.position().then((value) => currenttime = value/1000.0);
-    print(currenttime);
+    await widget.player
+        .position()
+        .then((value) => currenttime = value / 1000.0);
     getLyricLines(currenttime);
   }
 
@@ -32,45 +40,60 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
       var line = lines[i];
       var times = Lyric.parse(line).startTime;
       if (currenttime <= times) {
-        setState(() {
-          currentLyricLine = Lyric.parse(line).lyric;
-          print("Line: $currentLyricLine");
-        });
+        if (!disposed) {
+          if (currentLyricLine != Lyric.parse(line).lyric) {
+            setState(() {
+              oldLyricLine = currentLyricLine;
+              currentLyricLine = Lyric.parse(line).lyric;
+            });
+          }
+        }
         break;
       }
     }
   }
 
   Future<List<String>> getFileLines() async {
-    final data = await rootBundle.load('assets/lyric.lrc');
-    final directory = (await getTemporaryDirectory()).path;
-    final file = await writeToFile(data, '$directory/lyric.lrc');
+    File file = File("storage/emulated/0/Download/${widget.songName}.lrc");
+    if(await file.exists()) {
     return await file.readAsLines();
+    }else {
+      dispose();
+      return ["","","",""];
+    }
   }
 
-  Future<File> writeToFile(ByteData data, String path) {
-    return File(path).writeAsBytes(data.buffer.asUint8List(
-      data.offsetInBytes,
-      data.lengthInBytes,
-    ));
+
+  @override
+  dispose() {
+    disposed = true;
+    timer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    startTimer(const Duration(milliseconds: 300));
     return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'Time:',
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            oldLyricLine,
+            style: const TextStyle(fontSize: 11,),
+          ),
+          Text(
+            currentLyricLine,
+            style: const TextStyle(
+              fontSize: 35,
+              fontWeight: FontWeight.bold,
+              
             ),
-            Text(
-              currentLyricLine,
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      );
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -95,3 +118,18 @@ class Lyric {
     return "Lyric{lyric: $lyric, startTime: $startTime}";
   }
 }
+
+/*
+
+1. times of all lines
+2. player time
+
+
+
+w
+next Linetime
+
+
+
+
+ */

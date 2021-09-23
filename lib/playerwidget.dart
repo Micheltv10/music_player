@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
+import 'package:music_player/karaoke.dart';
 import 'package:music_player/playpausebutton.dart';
 import 'package:audiotagger/audiotagger.dart';
 import 'main.dart';
@@ -101,8 +102,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
               flex: 2,
             ),
             CarouselSlider(
-              options: CarouselOptions(height: 400.0),
-              items: [1, 2, 3, 4, 5].map((i) {
+              options: CarouselOptions(height: 400.0, viewportFraction: 0.95),
+              items: [1, 2].map((i) {
                 return FutureBuilder<Widget>(
                   future: sliderCarousel(i),
                   builder:
@@ -183,7 +184,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     if (i == 1) {
       return await getArtwork();
     } else {
-      return const Text('data');
+      return KaraokeWidget(songName: widget.currentSong, player: widget.player);
     }
   }
 

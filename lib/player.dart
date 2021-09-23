@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:ocarina/ocarina.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -8,10 +9,10 @@ class Player {
   OcarinaPlayer? pendingPlayer;
   YoutubePlayerState youtubePlayerState = YoutubePlayerState.off;
   final YoutubePlayerController youtubeController;
-  final YoutubePlayer youtubeWidget;
+  final Widget youtubeWidget;
 
-  Player() : this._(YoutubePlayerController(initialVideoId: ''));
-  Player._(YoutubePlayerController controller) : youtubeController = controller, youtubeWidget = YoutubePlayer(controller: controller);
+  Player() : this._(YoutubePlayerController(initialVideoId: 'aAkMkVFwAoo'));
+  Player._(YoutubePlayerController controller) : youtubeController = controller, youtubeWidget = SizedBox(child: YoutubePlayer(controller: controller), width: 1, height: 1,);
 
   Future<void> loadUri(Uri uri) {
     youtubePlayerState = YoutubePlayerState.off;
@@ -26,6 +27,7 @@ class Player {
     
     final videoId = YoutubePlayer.convertUrlToId(uri.toString());
     if(videoId!=null) {
+      print('YoutubePlayerState.uri videoId= $videoId');
       youtubeController.load(videoId);
       youtubePlayerState = YoutubePlayerState.pending;
     }

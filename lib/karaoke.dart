@@ -1,10 +1,8 @@
-/*
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:music_player/player.dart';
-import 'main.dart';
 
 class KaraokeWidget extends StatefulWidget {
   final String songName;
@@ -20,48 +18,56 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
   String oldLyricLine = "";
   String currentLyricLine = "";
   String nextLyricLine = "";
-  int oldLyricLineIdx = 0;
-  List oldLyrics = ["firstlinetest"];
+  int lyricsIdx = 0;
+  List lyrics = [];
   Timer? timer;
   bool disposed = false;
 
-  void startTimer(Duration time) {
+  void startTimer(Duration time) async {
+    await getLyricLines();
     Timer timer = Timer.periodic(time, updateLyricLine);
   }
 
   void updateLyricLine(Timer timer) async {
-    double currenttime = 0;
+    double currentTime = 0;
     await widget.player
         .position()
-        .then((value) => currenttime = value / 1000.0);
-    getLyricLines(currenttime);
+        .then((value) => currentTime = value / 1000.0);
+    for (int i = 0; i < lyrics.length; i++) {
+      if (!disposed) {
+        Lyric lyric = lyrics[i];
+        if (i < lyrics.length) {
+          Lyric nextLyric = lyrics[i + 1];
+          if (lyric.startTime < currentTime &&
+              nextLyric.startTime > currentTime) {
+            setState(() {
+              oldLyricLine = currentLyricLine;
+              currentLyricLine = lyric.lyric;
+              nextLyricLine = nextLyric.lyric;
+            });
+            break;
+          }
+        } else {
+          setState(() {
+            oldLyricLine = currentLyricLine;
+            currentLyricLine = lyric.lyric;
+            nextLyricLine = "End";
+          });
+        }
+      }
+    }
   }
 
-  getLyricLines(double currenttime) async {
+  getLyricLines() async {
     List<String> lines = List.empty();
+    lyrics = List.empty(growable: true);
     await getFileLines().then((result) => lines = result);
     for (int i = 0; i < lines.length; i++) {
       var line = lines[i];
-      var times = Lyric.parse(line).startTime;
-      if (currenttime >= times) {
-        var newIdx = oldLyricLineIdx;
-        oldLyrics.asMap().forEach((lyricIdx, lyric) {
-          if (currenttime >= lyric.times) {
-            newIdx = lyricIdx;
-          }
-        });
-        if (!disposed) {
-          if (oldLyricLineIdx != newIdx) {
-            setState(() {
-              oldLyricLine = currentLyricLine;
-              currentLyricLine = Lyric.parse(line).lyric;
-              oldLyrics.add(Lyric.parse(line).lyric);
-              print(oldLyrics);
-            });
-          }
-
-          break;
-        }
+      var startTime = Lyric.parse(line).startTime;
+      var lyric = Lyric.parse(line).lyric;
+      if (!disposed) {
+        lyrics.add(Lyric(lyric, startTime));
       }
     }
   }
@@ -77,6 +83,12 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
   }
 
   @override
+  initState() {
+    super.initState();
+    startTimer(const Duration(milliseconds: 300));
+  }
+
+  @override
   dispose() {
     disposed = true;
     timer?.cancel();
@@ -85,22 +97,23 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    startTimer(const Duration(milliseconds: 300));
+    print("KaraokeWidgetState.build builded");
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            oldLyricLine,
-            style: const TextStyle(
-              fontSize: 11,
-            ),
-          ),
-          Text(
             currentLyricLine,
             style: const TextStyle(
               fontSize: 35,
               fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            nextLyricLine,
+            style: const TextStyle(
+              fontSize: 20,
             ),
             textAlign: TextAlign.center,
           ),
@@ -131,18 +144,3 @@ class Lyric {
     return "Lyric{lyric: $lyric, startTime: $startTime}";
   }
 }
-
-
-
-1. times of all lines
-2. player time
-
-
-
-w
-next Linetime
-
-
-
-
- */

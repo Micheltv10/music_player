@@ -39,6 +39,7 @@ dependencies:
   audiotagger: ^2.2.1
   flutter_slidable: ^0.6.0
   marquee: ^2.2.0
+  youtube_player_flutter: ^8.0.0
 
 dev_dependencies:
   flutter_test:

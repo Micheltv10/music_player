@@ -3,11 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:music_player/player.dart';
+import 'package:music_player/types.dart';
 
 class KaraokeWidget extends StatefulWidget {
-  final String songName;
+  final SongData song;
   final Player player;
-  const KaraokeWidget({Key? key, required this.songName, required this.player})
+  const KaraokeWidget({Key? key, required this.song, required this.player})
       : super(key: key);
 
   @override
@@ -73,7 +74,7 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
   }
 
   Future<List<String>> getFileLines() async {
-    File file = File("storage/emulated/0/Download/${widget.songName}.lrc");
+    File file = File("storage/emulated/0/Download/${widget.song.title}.lrc");
     if (await file.exists()) {
       return await file.readAsLines();
     } else {

@@ -200,7 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           SizedBox(
                             height: 25,
-                            child: songNameLength(currentSong!),
+                            child: songNameLength(currentSong!.title),
                           ),
                           SizedBox(
                             height: 22,
@@ -357,7 +357,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 currentSong: widget.songs[index],
                                 currentArtist: map?["artist"],
                                 player: player,
-                                songNames: widget.songNames,
+                                songs: widget.songs,
                                 setState: setState);
                             setPlaying(true);
                           });
@@ -403,7 +403,7 @@ class NextSongTimer {
 
   Player player;
 
-  List<String> queue = [];
+  List<SongData> queue = [];
   SetStateFunction setState;
   List<SongData> songs;
   Timer? timer;
@@ -451,7 +451,7 @@ class NextSongTimer {
         await player.loadUri(uri);
         await player.play();
         setState(() {
-          currentSong = newSong.title;
+          currentSong = newSong;
           currentArtist = map?["artist"];
         });
       }

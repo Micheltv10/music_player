@@ -95,7 +95,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.currentSong),
+          title: Text(widget.currentSong.title),
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -186,7 +186,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     if (i == 1) {
       return await getArtwork();
     } else {
-      return KaraokeWidget(songName: widget.currentSong, player: widget.player);
+      return KaraokeWidget(song: widget.currentSong, player: widget.player);
     }
   }
 

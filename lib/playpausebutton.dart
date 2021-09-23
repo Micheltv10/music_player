@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:music_player/main.dart';
+import 'package:music_player/player.dart';
 
 class PlayPauseButtonWidget extends StatefulWidget {
   final bool playing;

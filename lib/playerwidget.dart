@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 import 'package:music_player/karaoke.dart';
+import 'package:music_player/player.dart';
 import 'package:music_player/playpausebutton.dart';
 import 'package:audiotagger/audiotagger.dart';
 import 'main.dart';
@@ -184,7 +185,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     if (i == 1) {
       return await getArtwork();
     } else {
-      return KaraokeWidget(songName: widget.currentSong, player: widget.player);
+      return Text('data');//KaraokeWidget(songName: widget.currentSong, player: widget.player);
     }
   }
 

@@ -1,7 +1,9 @@
+/*
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:music_player/player.dart';
 import 'main.dart';
 
 class KaraokeWidget extends StatefulWidget {
@@ -18,6 +20,8 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
   String oldLyricLine = "";
   String currentLyricLine = "";
   String nextLyricLine = "";
+  int oldLyricLineIdx = 0;
+  List oldLyrics = ["firstlinetest"];
   Timer? timer;
   bool disposed = false;
 
@@ -39,30 +43,38 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
     for (int i = 0; i < lines.length; i++) {
       var line = lines[i];
       var times = Lyric.parse(line).startTime;
-      if (currenttime <= times) {
+      if (currenttime >= times) {
+        var newIdx = oldLyricLineIdx;
+        oldLyrics.asMap().forEach((lyricIdx, lyric) {
+          if (currenttime >= lyric.times) {
+            newIdx = lyricIdx;
+          }
+        });
         if (!disposed) {
-          if (currentLyricLine != Lyric.parse(line).lyric) {
+          if (oldLyricLineIdx != newIdx) {
             setState(() {
               oldLyricLine = currentLyricLine;
               currentLyricLine = Lyric.parse(line).lyric;
+              oldLyrics.add(Lyric.parse(line).lyric);
+              print(oldLyrics);
             });
           }
+
+          break;
         }
-        break;
       }
     }
   }
 
   Future<List<String>> getFileLines() async {
     File file = File("storage/emulated/0/Download/${widget.songName}.lrc");
-    if(await file.exists()) {
-    return await file.readAsLines();
-    }else {
+    if (await file.exists()) {
+      return await file.readAsLines();
+    } else {
       dispose();
-      return ["","","",""];
+      return ["", "", "", ""];
     }
   }
-
 
   @override
   dispose() {
@@ -80,14 +92,15 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
         children: <Widget>[
           Text(
             oldLyricLine,
-            style: const TextStyle(fontSize: 11,),
+            style: const TextStyle(
+              fontSize: 11,
+            ),
           ),
           Text(
             currentLyricLine,
             style: const TextStyle(
               fontSize: 35,
               fontWeight: FontWeight.bold,
-              
             ),
             textAlign: TextAlign.center,
           ),
@@ -119,7 +132,7 @@ class Lyric {
   }
 }
 
-/*
+
 
 1. times of all lines
 2. player time

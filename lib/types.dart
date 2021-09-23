@@ -51,6 +51,7 @@ class SongData {
   final List<AudioData> audios;
   final List<ImageData> images;
   final List<TextData> texts;
+  Uri get songUri => audios.singleWhere((audio) => audio.kind == AudioKind.song).uri;
 
   SongData({required this.index, required this.subtitle, required this.audios, required this.images, required this.texts, required this.title});
 }

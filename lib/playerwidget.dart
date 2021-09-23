@@ -5,13 +5,14 @@ import 'package:music_player/karaoke.dart';
 import 'package:music_player/player.dart';
 import 'package:music_player/playpausebutton.dart';
 import 'package:audiotagger/audiotagger.dart';
+import 'package:music_player/types.dart';
 import 'main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class PlayerWidget extends StatefulWidget {
   Player player;
   bool playing;
-  String currentSong;
+  SongData currentSong;
   String currentArtist;
   final BoolConsumer setPlaying;
   final tagger = Audiotagger();
@@ -185,7 +186,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     if (i == 1) {
       return await getArtwork();
     } else {
-      return Text('data');//KaraokeWidget(songName: widget.currentSong, player: widget.player);
+      return KaraokeWidget(songName: widget.currentSong, player: widget.player);
     }
   }
 

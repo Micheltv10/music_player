@@ -3,8 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:marquee/marquee.dart';
+import 'package:music_player/optionpage.dart';
 import 'package:music_player/player.dart';
 import 'package:music_player/playpausebutton.dart';
+import 'package:music_player/types.dart';
 import 'helpers/get_directory_music.dart';
 import 'package:audiotagger/audiotagger.dart';
 import 'playerwidget.dart';
@@ -14,15 +16,16 @@ typedef SetStateFunction = void Function(void Function() fn);
 void main() async {
   runApp(MyApp(
     player: Player(),
-    songNames: await getDirectoriesMusic(),
+    songs: await getDirectoriesMusic(),
   ));
 }
 
 // ignore: must_be_immutable
 class MyApp extends StatelessWidget {
-  List<String> songNames;
+  List<SongData> songs;
   final Player player;
-  MyApp({Key? key, required this.songNames, required this.player}) : super(key: key);
+  MyApp({Key? key, required this.songs, required this.player})
+      : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -33,7 +36,7 @@ class MyApp extends StatelessWidget {
         ),
         home: MyHomePage(
           title: 'Home',
-          songNames: songNames,
+          songs: songs,
           player: player,
         ),
       );
@@ -42,9 +45,13 @@ class MyApp extends StatelessWidget {
 // ignore: must_be_immutable
 class MyHomePage extends StatefulWidget {
   final Player player;
-  MyHomePage({Key? key, required this.title, required this.songNames, required this.player})
+  MyHomePage(
+      {Key? key,
+      required this.title,
+      required this.songs,
+      required this.player})
       : super(key: key);
-  List<String> songNames;
+  List<SongData> songs;
   final String title;
 
   @override
@@ -55,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final SlidableController slidableController = SlidableController();
   Player get player => widget.player;
   bool? playing;
-  String? get currentSong => nextSongTimer?.currentSong;
+  SongData? get currentSong => nextSongTimer?.currentSong;
   String? get currentArtist => nextSongTimer?.currentArtist;
   Audiotagger? get tagger => nextSongTimer?.tagger;
 
@@ -74,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
         currentSong: null,
         currentArtist: null,
         player: Player(),
-        songNames: widget.songNames,
+        songs: widget.songs,
         setState: setState);
   }
 
@@ -131,133 +138,133 @@ class _MyHomePageState extends State<MyHomePage> {
 
   smallPlayerWidget() {
     final size = MediaQuery.of(context).size;
-    
-      if (player.isLoaded()) {
-        return SizedBox(
-          width: double.infinity,
-          height: 91,
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(20),
-                ),
-                color: Colors.deepPurple[300]),
-            child: GestureDetector(
-              onTap: () {
-                nextSongTimer?.stopTimer();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => PlayerWidget(
-                            playing: playing!,
-                            player: player,
-                            currentArtist: currentArtist!,
-                            currentSong: currentSong!,
-                            setPlaying: setPlaying,
-                          )),
-                );
-              },
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(left: 8, top: 0, right: 8),
-                        child: SizedBox(
-                          height: 50,
-                          width: 50,
-                          child: Container(
-                            child: FutureBuilder<Widget>(
-                              future: getArtwork(currentSong),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<Widget> snapshot) {
-                                if (snapshot.hasData) {
-                                  return snapshot.data!;
-                                }
-                                return const CircularProgressIndicator();
-                              },
-                            ),
-                            decoration: const BoxDecoration(
-                                color: Colors.deepPurple,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 75,
-                        width: size.width * 0.48,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 25,
-                              child: songNameLength(currentSong!),
-                            ),
-                            SizedBox(
-                              height: 22,
-                              child: artistNameLength(currentArtist!),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Spacer(),
-                      Center(
-                        child: PlayPauseButtonWidget(
-                          player: player,
-                          playing: playing!,
-                          size: 32,
-                          setPlaying: setPlaying,
-                        ),
-                      ),
-                      const Spacer(),
-                    ],
-                  ),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: Colors.deepPurple,
-                      inactiveTrackColor: Colors.deepPurpleAccent,
-                      trackShape: const RoundedRectSliderTrackShape(),
-                      trackHeight: 5.0,
-                      thumbColor: Colors.purple,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0),
-                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 8.0),
-                    ),
-                    child: FutureBuilder<double>(
-                        future: getSongDuration(currentSong),
-                        builder: (context, snapshot) {
-                          return PositionSliderWidget(
-                              maxPosition:
-                                  snapshot.hasData ? snapshot.data! : 200000,
-                              player: player);
-                        }),
-                  )
-                ],
+
+    if (player.isLoaded()) {
+      return SizedBox(
+        width: double.infinity,
+        height: 91,
+        child: Container(
+          decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(20),
               ),
+              color: Colors.deepPurple[300]),
+          child: GestureDetector(
+            onTap: () {
+              nextSongTimer?.stopTimer();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PlayerWidget(
+                          playing: playing!,
+                          player: player,
+                          currentArtist: currentArtist!,
+                          currentSong: currentSong!,
+                          setPlaying: setPlaying,
+                        )),
+              );
+            },
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8, top: 0, right: 8),
+                      child: SizedBox(
+                        height: 50,
+                        width: 50,
+                        child: Container(
+                          child: FutureBuilder<Widget>(
+                            future: getArtwork(currentSong),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<Widget> snapshot) {
+                              if (snapshot.hasData) {
+                                return snapshot.data!;
+                              }
+                              return const CircularProgressIndicator();
+                            },
+                          ),
+                          decoration: const BoxDecoration(
+                              color: Colors.deepPurple,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 75,
+                      width: size.width * 0.48,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 25,
+                            child: songNameLength(currentSong!),
+                          ),
+                          SizedBox(
+                            height: 22,
+                            child: artistNameLength(currentArtist!),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    Center(
+                      child: PlayPauseButtonWidget(
+                        player: player,
+                        playing: playing!,
+                        size: 32,
+                        setPlaying: setPlaying,
+                      ),
+                    ),
+                    const Spacer(),
+                  ],
+                ),
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: Colors.deepPurple,
+                    inactiveTrackColor: Colors.deepPurpleAccent,
+                    trackShape: const RoundedRectSliderTrackShape(),
+                    trackHeight: 5.0,
+                    thumbColor: Colors.purple,
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 0),
+                    overlayShape:
+                        const RoundSliderOverlayShape(overlayRadius: 8.0),
+                  ),
+                  child: FutureBuilder<double>(
+                      future: getSongDuration(currentSong),
+                      builder: (context, snapshot) {
+                        return PositionSliderWidget(
+                            maxPosition:
+                                snapshot.hasData ? snapshot.data! : 200000,
+                            player: player);
+                      }),
+                )
+              ],
             ),
           ),
-        );
-      } else {
-        return SizedBox(
-          width: double.infinity,
-          height: 100,
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(20),
-                ),
-                color: Colors.deepPurple[300]),
-            child: const Center(
-                child: Text(
-              'No Song selcted',
-              style: TextStyle(fontSize: 30),
-            )),
-          ),
-        );
-      }
-    
+        ),
+      );
+    } else {
+      return SizedBox(
+        width: double.infinity,
+        height: 100,
+        child: Container(
+          decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(20),
+              ),
+              color: Colors.deepPurple[300]),
+          child: const Center(
+              child: Text(
+            'No Song selcted',
+            style: TextStyle(fontSize: 30),
+          )),
+        ),
+      );
+    }
   }
 
   @override
@@ -266,6 +273,20 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: <Widget>[
+          Padding(
+              padding: EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => MainOptionMenuWidget(player: widget.player,)),
+              );
+                },
+                child: Icon(Icons.more_vert),
+              )),
+        ],
       ),
       body: Stack(
         alignment: Alignment.center,
@@ -279,7 +300,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: ListView.builder(
                 padding: const EdgeInsets.only(
                     left: 1, right: 1, bottom: 250, top: 1),
-                itemCount: widget.songNames.length,
+                itemCount: widget.songs.length,
                 itemBuilder: (context, index) {
                   return Slidable(
                     controller: slidableController,
@@ -296,7 +317,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.green,
                         closeOnTap: false,
                         onTap: () async {
-                          nextSongTimer?.addToQueue(widget.songNames[index]);
+                          nextSongTimer?.addToQueue(widget.songs[index]);
                         },
                       )
                     ],
@@ -307,11 +328,11 @@ class _MyHomePageState extends State<MyHomePage> {
                             Radius.circular(5),
                           )),
                       child: ListTile(
-                        title: Text(widget.songNames[index]),
+                        title: Text(widget.songs[index].title),
                         leading: CircleAvatar(
                           child: Center(
                             child: FutureBuilder<Widget>(
-                              future: getArtwork(widget.songNames[index]),
+                              future: getArtwork(widget.songs[index].songUri.toFilePath()),
                               builder: (BuildContext context,
                                   AsyncSnapshot<Widget> snapshot) {
                                 if (snapshot.hasData) {
@@ -324,19 +345,16 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         onTap: () async {
-                          
-
-                          final String filePath =
-                              "/storage/emulated/0/Download/${widget.songNames[index]}.mp3";
+                          final String filePath = widget.songs[index].songUri.toFilePath();
                           final Map? map =
                               await tagger?.readTagsAsMap(path: filePath);
 
-                          await player.load('storage/emulated/0/Download/${widget.songNames[index]}.mp3');
+                          await player.loadUri(widget.songs[index].songUri);
                           player.play();
                           nextSongTimer?.stopTimer();
                           setState(() {
                             nextSongTimer = NextSongTimer(
-                                currentSong: widget.songNames[index],
+                                currentSong: widget.songs[index],
                                 currentArtist: map?["artist"],
                                 player: player,
                                 songNames: widget.songNames,
@@ -379,7 +397,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class NextSongTimer {
-  String? currentSong;
+  SongData? currentSong;
 
   final tagger = Audiotagger();
 
@@ -387,14 +405,14 @@ class NextSongTimer {
 
   List<String> queue = [];
   SetStateFunction setState;
-  List<String> songNames;
+  List<SongData> songs;
   Timer? timer;
   String? currentArtist;
 
   NextSongTimer(
       {required this.currentSong,
       this.currentArtist,
-      required this.songNames,
+      required this.songs,
       required this.player,
       required this.setState});
 
@@ -427,14 +445,13 @@ class NextSongTimer {
         queue.removeAt(0);
       } else {
         final _random = Random();
-        String newSong = songNames[_random.nextInt(songNames.length)];
-        String filePath = "storage/emulated/0/Download/$newSong.mp3";
-        final Map? map = await tagger.readTagsAsMap(
-            path: filePath);
-        await player.load(filePath);
+        SongData newSong = songs[_random.nextInt(songs.length)];
+        Uri uri = newSong.songUri;
+        final Map? map = await tagger.readTagsAsMap(path: uri.toFilePath());
+        await player.loadUri(uri);
         await player.play();
         setState(() {
-          currentSong = newSong;
+          currentSong = newSong.title;
           currentArtist = map?["artist"];
         });
       }
@@ -445,4 +462,3 @@ class NextSongTimer {
     queue.add(songName);
   }
 }
-

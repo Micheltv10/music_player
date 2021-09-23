@@ -5,7 +5,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:marquee/marquee.dart';
 import 'package:music_player/player.dart';
 import 'package:music_player/playpausebutton.dart';
-import 'package:ocarina/ocarina.dart';
 import 'helpers/get_directory_music.dart';
 import 'package:audiotagger/audiotagger.dart';
 import 'playerwidget.dart';

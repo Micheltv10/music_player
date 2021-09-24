@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
@@ -145,7 +147,7 @@ class Player {
   void dispose() {
     midiLoaded = false;
     _midiDispose();
-    youtubeController.dispose();
+    // youtubeController.dispose();
     currentPlayer?.dispose();
     currentPlayer = null;
     pendingPlayer?.dispose();

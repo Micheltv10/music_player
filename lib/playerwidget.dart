@@ -105,7 +105,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             ),
             CarouselSlider(
               options: CarouselOptions(height: 400.0, viewportFraction: 0.95),
-              items: [1, 2].map((i) {
+              items: [1, 2, 3].map((i) {
                 return FutureBuilder<Widget>(
                   future: sliderCarousel(i),
                   builder:
@@ -185,8 +185,12 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   Future<Widget> sliderCarousel(i) async {
     if (i == 1) {
       return await getArtwork();
-    } else {
+    } if (i == 2) {
       return KaraokeWidget(song: widget.currentSong, player: widget.player);
+    } if (i == 3) {
+      return SelectAudioKindWidget(player: widget.player, currentSong: widget.currentSong);
+    } else {
+      return const Text('How?');
     }
   }
 
@@ -270,6 +274,60 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
             children: [Text(format(Duration(seconds: (position / 1000).toInt()))), Text(format(Duration(seconds: widget.maxPosition.toInt())))],
           ),
         )*/
+      ],
+    );
+  }
+}
+class SelectAudioKindWidget extends StatefulWidget {
+  final Player player;
+  final SongData currentSong;
+  const SelectAudioKindWidget({ Key? key, required this.player, required this.currentSong }) : super(key: key);
+
+  @override
+  _SelectAudioKindWidgetState createState() => _SelectAudioKindWidgetState();
+}
+
+class _SelectAudioKindWidgetState extends State<SelectAudioKindWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    return Column(
+      children: [
+        SizedBox(
+          width: size.width,
+          height: size.height * 0.3,
+          child: ListView.builder(
+            itemCount: widget.currentSong.audios.length,
+            itemBuilder: (context, index){
+              final size = MediaQuery.of(context).size;
+              AudioData audioData = widget.currentSong.audios[index];
+              return Center(
+                child: SizedBox(
+                  height:66,
+                  width: size.width * 0.9,
+                  child: Column(
+                    children: [
+                      Text("Name = ${audioData.name.toString()}"),
+                      TextButton(onPressed: () async{
+                        if (audioData.kind == "song") {
+                          await widget.player.loadUri(audioData.uri);
+                          widget.player.play();
+                        } else {
+                          await widget.player.loadUri(audioData.uri);
+                          widget.player.play();
+                        }
+                      }, 
+                      child: Text("Play"),)
+                      
+                    ],
+                  ),
+                ),
+              );
+          }),
+        ),
+        TextButton(onPressed: () {
+          widget.player.dispose();
+        }, child: Text('Dispose'))
       ],
     );
   }

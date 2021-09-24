@@ -3,11 +3,11 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:music_player/tagger.dart';
 import 'package:music_player/types.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
-Locale de = Locale.fromSubtags(languageCode: 'de');
+Locale de = const Locale.fromSubtags(languageCode: 'de');
 bool permissionGranted = false;
-
+/*
 Future _getStoragePermission() async {
   if (await Permission.storage.request().isGranted) {
     permissionGranted = true;
@@ -17,7 +17,7 @@ Future _getStoragePermission() async {
     permissionGranted = false;
   }
 }
-
+*/
 Future<List<SongData>> getDirectoriesMusic(AudioTagger tagger) async {
   Directory download = Directory('storage/emulated/0/Download');
   return getDirectoryFiles(download, tagger);
@@ -41,7 +41,13 @@ Future<SongData> createSongDatafromFileSystemEntity(
             kind: AudioKind.song,
             locale: de,
             name: file.toString().substring(35, file.toString().length - 5),
-            uri: file.absolute.uri)
+            uri: file.absolute.uri),
+        AudioData(
+            durationProvider: () => getAudioDuration(file.uri, tagger),
+            kind: AudioKind.firstVoice,
+            locale: de,
+            name: "Centarei_ao_s_1",
+            uri: Uri.parse("/storage/emulated/0/Download/cantarei_ao_s_1.mid")),
       ],
       images: [],
       texts: [],

@@ -10,6 +10,10 @@ enum AudioKind {
   pronunciation,
   accompaniment,
   song,
+  firstVoice,
+  secondfVoice,
+  thirdVoice,
+  guitar
 }
 
 enum TextKind {
@@ -17,7 +21,7 @@ enum TextKind {
   phonetics,
   translation,
 }
-typedef Future<Duration> DurationProvider();
+typedef DurationProvider = Future<Duration> Function();
 class AudioData {
   final AudioKind kind;
   final String name;
@@ -57,7 +61,7 @@ class SongData {
   SongData({required this.index, required this.subtitle, required this.audios, required this.images, required this.texts, required this.title});
 }
 
-typedef  int SongComparator(SongData left, SongData right);
+typedef  SongComparator = int Function(SongData left, SongData right);
 class SongComparators {
     static int compareAscendingByTitle(SongData left, SongData right) => left.title.compareTo(right.title);
     static int compareDescendingByTitle(SongData left, SongData right) => right.title.compareTo(left.title);

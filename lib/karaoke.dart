@@ -97,7 +97,6 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print("KaraokeWidgetState.build builded");
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

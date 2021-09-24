@@ -11,7 +11,7 @@ enum AudioKind {
   accompaniment,
   song,
   firstVoice,
-  secondfVoice,
+  secondVoice,
   thirdVoice,
   guitar
 }

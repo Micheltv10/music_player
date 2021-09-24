@@ -295,7 +295,7 @@ class _SelectAudioKindWidgetState extends State<SelectAudioKindWidget> {
       children: [
         SizedBox(
           width: size.width,
-          height: size.height * 0.3,
+          height: size.height * 0.39,
           child: ListView.builder(
             itemCount: widget.currentSong.audios.length,
             itemBuilder: (context, index){
@@ -303,11 +303,12 @@ class _SelectAudioKindWidgetState extends State<SelectAudioKindWidget> {
               AudioData audioData = widget.currentSong.audios[index];
               return Center(
                 child: SizedBox(
-                  height:66,
+                  height: 90,
                   width: size.width * 0.9,
                   child: Column(
                     children: [
                       Text("Name = ${audioData.name.toString()}"),
+                      audioDataKindIcon(audioData),
                       TextButton(onPressed: () async{
                         if (audioData.kind == "song") {
                           await widget.player.loadUri(audioData.uri);
@@ -318,7 +319,6 @@ class _SelectAudioKindWidgetState extends State<SelectAudioKindWidget> {
                         }
                       }, 
                       child: Text("Play"),)
-                      
                     ],
                   ),
                 ),
@@ -331,4 +331,29 @@ class _SelectAudioKindWidgetState extends State<SelectAudioKindWidget> {
       ],
     );
   }
+}
+
+Widget audioDataKindIcon(AudioData audioData) {
+  if(audioData.kind == AudioKind.firstVoice){
+    return Icon(Icons.person);
+  }
+  if(audioData.kind == AudioKind.secondVoice){
+    return Icon(Icons.people);
+  }
+  if(audioData.kind == AudioKind.thirdVoice){
+    return Icon(Icons.person);
+  }
+  if(audioData.kind == AudioKind.guitar){
+    return Icon(Icons.groups);
+  }
+  if(audioData.kind == AudioKind.song){
+    return Icon(Icons.music_note);
+  }
+  if(audioData.kind == AudioKind.pronunciation){
+    return Icon(Icons.record_voice_over);
+  }
+  else {
+    return Text('How?');
+  }
+  
 }

@@ -10,19 +10,20 @@ import 'main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class PlayerWidget extends StatefulWidget {
-  Player player;
-  bool playing;
-  SongData currentSong;
-  String currentArtist;
+  final Player player;
+  final bool playing;
+  final SongData currentSong;
+  final String currentArtist;
   final BoolConsumer setPlaying;
-  final tagger = Audiotagger();
-  PlayerWidget(
+  final Audiotagger tagger;
+  const PlayerWidget(
       {Key? key,
       required this.playing,
       required this.currentArtist,
       required this.currentSong,
       required this.player,
-      required this.setPlaying})
+      required this.setPlaying,
+      required this.tagger,})
       : super(key: key);
 
   @override
@@ -31,7 +32,6 @@ class PlayerWidget extends StatefulWidget {
 
 class _PlayerWidgetState extends State<PlayerWidget> {
   bool playing;
-  final tagger = Audiotagger();
   _PlayerWidgetState(this.playing);
 
   songNameLength(songName) {
@@ -86,7 +86,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   Future<double> getSongDuration() async {
     final filePath = "storage/emulated/0/Download/${widget.currentSong}.mp3";
-    Map? map = await tagger.readAudioFileAsMap(path: filePath);
+    Map? map = await widget.tagger.readAudioFileAsMap(path: filePath);
     int length = map!['length'];
     return length.toDouble();
   }
@@ -194,7 +194,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     Widget artwork;
     final String filePath =
         "/storage/emulated/0/Download/${widget.currentSong}.mp3";
-    final output = await tagger.readArtwork(path: filePath);
+    final output = await widget.tagger.readArtwork(path: filePath);
     artwork = output != null
         ? Image.memory(output)
         : const Icon(

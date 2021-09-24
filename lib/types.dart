@@ -17,15 +17,16 @@ enum TextKind {
   phonetics,
   translation,
 }
-
+typedef Future<Duration> DurationProvider();
 class AudioData {
   final AudioKind kind;
   final String name;
   final Uri uri;
   final Locale locale;
-  final Duration duration;
+  Future<Duration> get duration => durationProvider();
+  final DurationProvider durationProvider; 
 
-  AudioData({required this.duration, required this.kind, required this.locale, required this.name, required this.uri});
+  AudioData({required this.durationProvider, required this.kind, required this.locale, required this.name, required this.uri});
 }
 
 class TextData {

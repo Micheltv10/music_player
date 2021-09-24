@@ -14,9 +14,12 @@ import 'playerwidget.dart';
 typedef BoolConsumer = void Function(bool value);
 typedef SetStateFunction = void Function(void Function() fn);
 void main() async {
+  final tagger = Audiotagger();
   runApp(MyApp(
     player: Player(),
-    songs: await getDirectoriesMusic(),
+    songs: await getDirectoriesMusic(tagger),
+    tagger: tagger,
+
   ));
 }
 
@@ -24,7 +27,8 @@ void main() async {
 class MyApp extends StatelessWidget {
   List<SongData> songs;
   final Player player;
-  MyApp({Key? key, required this.songs, required this.player})
+  final Audiotagger tagger;
+  MyApp({Key? key, required this.songs, required this.player, required this.tagger})
       : super(key: key);
 
   // This widget is the root of your application.
@@ -37,7 +41,7 @@ class MyApp extends StatelessWidget {
         home: MyHomePage(
           title: 'Home',
           songs: songs,
-          player: player,
+          player: player, tagger: tagger,
         ),
       );
 }
@@ -45,11 +49,12 @@ class MyApp extends StatelessWidget {
 // ignore: must_be_immutable
 class MyHomePage extends StatefulWidget {
   final Player player;
+  final Audiotagger tagger;
   MyHomePage(
       {Key? key,
       required this.title,
       required this.songs,
-      required this.player})
+      required this.player, required this.tagger})
       : super(key: key);
   List<SongData> songs;
   final String title;
@@ -64,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool? playing;
   SongData? get currentSong => nextSongTimer?.currentSong;
   String? get currentArtist => nextSongTimer?.currentArtist;
-  Audiotagger? get tagger => nextSongTimer?.tagger;
+  Audiotagger get tagger => widget.tagger;
 
   NextSongTimer? nextSongTimer;
 
@@ -82,12 +87,13 @@ class _MyHomePageState extends State<MyHomePage> {
         currentArtist: null,
         player: Player(),
         songs: widget.songs,
-        setState: setState);
+        setState: setState,
+        tagger: tagger);
   }
 
   Future<double> getSongDuration(songName) async {
     String filePath = "storage/emulated/0/Download/$songName.mp3";
-    final Map? audiomap = await tagger?.readAudioFileAsMap(path: filePath);
+    final Map? audiomap = await tagger.readAudioFileAsMap(path: filePath);
     int length = audiomap!['length'];
     return length.toDouble();
   }
@@ -161,6 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           currentArtist: currentArtist!,
                           currentSong: currentSong!,
                           setPlaying: setPlaying,
+                          tagger: tagger,
                         )),
               );
             },
@@ -347,7 +354,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onTap: () async {
                           final String filePath = widget.songs[index].songUri.toFilePath();
                           final Map? map =
-                              await tagger?.readTagsAsMap(path: filePath);
+                              await tagger.readTagsAsMap(path: filePath);
 
                           await player.loadUri(widget.songs[index].songUri);
                           player.play();
@@ -358,7 +365,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 currentArtist: map?["artist"],
                                 player: player,
                                 songs: widget.songs,
-                                setState: setState);
+                                setState: setState, tagger: tagger,);
                             setPlaying(true);
                           });
                           nextSongTimer
@@ -386,7 +393,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<Widget> getArtwork(songName) async {
     Widget artwork;
     final String filePath = "/storage/emulated/0/Download/$songName.mp3";
-    final output = await tagger?.readArtwork(path: filePath);
+    final output = await tagger.readArtwork(path: filePath);
     artwork = output != null
         ? Image.memory(output)
         : const Icon(
@@ -399,7 +406,6 @@ class _MyHomePageState extends State<MyHomePage> {
 class NextSongTimer {
   SongData? currentSong;
 
-  final tagger = Audiotagger();
 
   Player player;
 
@@ -408,13 +414,15 @@ class NextSongTimer {
   List<SongData> songs;
   Timer? timer;
   String? currentArtist;
+  Audiotagger tagger;
 
   NextSongTimer(
       {required this.currentSong,
       this.currentArtist,
       required this.songs,
       required this.player,
-      required this.setState});
+      required this.setState,
+      required this.tagger,});
 
   void startTimer(Duration time) {
     timer?.cancel();

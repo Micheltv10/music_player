@@ -90,13 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
         setState: setState,
         tagger: tagger);
   }
-
-  Future<double> getSongDuration(songName) async {
-    String filePath = "storage/emulated/0/Download/$songName.mp3";
-    final Map? audiomap = await tagger.readAudioFileAsMap(path: filePath);
-    int length = audiomap!['length'];
-    return length.toDouble();
-  }
+ 
 
   Widget songNameLength(String songName) {
     if (songName.toString().length > 15) {
@@ -182,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         width: 50,
                         child: Container(
                           child: FutureBuilder<Widget>(
-                            future: getArtwork(currentSong),
+                            future: getArtwork(currentSong!.songUri.toFilePath()),
                             builder: (BuildContext context,
                                 AsyncSnapshot<Widget> snapshot) {
                               if (snapshot.hasData) {
@@ -241,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         const RoundSliderOverlayShape(overlayRadius: 8.0),
                   ),
                   child: FutureBuilder<double>(
-                      future: getSongDuration(currentSong),
+                      future: getSongDuration(currentSong!.songUri.toFilePath()),
                       builder: (context, snapshot) {
                         return PositionSliderWidget(
                             maxPosition:
@@ -357,7 +351,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               await tagger.readTagsAsMap(path: filePath);
 
                           await player.loadUri(widget.songs[index].songUri);
+                          print("_MyHomePageState.build Player loaded");
                           player.play();
+                          print("_MyHomePageState.build Player Played");
                           nextSongTimer?.stopTimer();
                           setState(() {
                             nextSongTimer = NextSongTimer(
@@ -390,9 +386,9 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<Widget> getArtwork(songName) async {
+  Future<Widget> getArtwork(String songName) async {
     Widget artwork;
-    final String filePath = "/storage/emulated/0/Download/$songName.mp3";
+    final String filePath = songName;
     final output = await tagger.readArtwork(path: filePath);
     artwork = output != null
         ? Image.memory(output)
@@ -400,6 +396,13 @@ class _MyHomePageState extends State<MyHomePage> {
             Icons.music_note,
           );
     return artwork;
+  }
+
+  Future<double> getSongDuration(String songName) async{
+    final String filePath = songName;
+    final map = await tagger.readAudioFileAsMap(path: filePath);
+    int output = map?['length']; 
+    return output.toDouble();
   }
 }
 
@@ -434,7 +437,7 @@ class NextSongTimer {
   }
 
   void playNextSong(Timer timer) async {
-    String filePath = "storage/emulated/0/Download/$currentSong.mp3";
+    String filePath = currentSong!.songUri.toFilePath();
     final Map? audiomap = await tagger.readAudioFileAsMap(path: filePath);
     int length = audiomap!['length'];
 
@@ -442,7 +445,7 @@ class NextSongTimer {
 
     if (((position / 1000) + 1) >= length) {
       if (queue.isNotEmpty) {
-        String filePathQueue = "storage/emulated/0/Download/${queue[0]}.mp3";
+        String filePathQueue = queue[0].songUri.toFilePath();
         final Map? map = await tagger.readTagsAsMap(path: filePathQueue);
         await player.load(filePathQueue);
         await player.play();

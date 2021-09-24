@@ -10,7 +10,6 @@ class AudioTagger {
     return filePath.endsWith('.mp3') && File(filePath).existsSync();
   }
   Future<Map<dynamic, dynamic>?> readAudioFileAsMap({required String path}) {
-    print("readAudioFileAsMap($path)}");
     try {
       return isMp3(path)? tagger.readAudioFileAsMap(path: path): defaultResult;
     } catch(e) {

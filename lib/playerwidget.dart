@@ -85,7 +85,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 
   Future<double> getSongDuration() async {
-    final filePath = "storage/emulated/0/Download/${widget.currentSong}.mp3";
+    final filePath = widget.currentSong.songUri.toFilePath();
     Map? map = await widget.tagger.readAudioFileAsMap(path: filePath);
     int length = map!['length'];
     return length.toDouble();
@@ -139,7 +139,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                             child: ColoredBox(
                               color: Colors.deepPurple,
                               child: Center(
-                                child: songNameLength(widget.currentSong),
+                                child: songNameLength(widget.currentSong.title),
                               ),
                             ),
                           ),
@@ -192,8 +192,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   getArtwork() async {
     Widget artwork;
-    final String filePath =
-        "/storage/emulated/0/Download/${widget.currentSong}.mp3";
+    final String filePath = widget.currentSong.songUri.toFilePath();
     final output = await widget.tagger.readArtwork(path: filePath);
     artwork = output != null
         ? Image.memory(output)
@@ -222,7 +221,7 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
   Timer? timer;
 
   startTimer() {
-    //timer = Timer.periodic(const Duration(milliseconds: 300), onTimer);
+    timer = Timer.periodic(const Duration(milliseconds: 300), onTimer);
   }
 
   onTimer(Timer timer) async {

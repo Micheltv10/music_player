@@ -112,8 +112,10 @@ class Player {
     if (pendingPlayer != null) {
       if (currentPlayer != null) {
         currentPlayer?.dispose();
+        print("Player.play disposed currentplayer");
       }
       currentPlayer = pendingPlayer;
+      print("Player.play set new currentplayer");
       pendingPlayer = null;
     }
     if (youtubePlayerState != YoutubePlayerState.off) {
@@ -162,7 +164,6 @@ class Player {
 
   bool isLoaded() {
     bool result = midiLoaded || (currentPlayer?.isLoaded() ?? false);
-    print("player${currentPlayer?.hashCode}.isLoaded=$result");
     return result;
   }
 

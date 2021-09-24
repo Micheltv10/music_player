@@ -37,10 +37,10 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
     for (int i = 0; i < lyrics.length; i++) {
       if (!disposed) {
         Lyric lyric = lyrics[i];
-        if (i < lyrics.length) {
+        if ((i + 1 ) < lyrics.length) {
           Lyric nextLyric = lyrics[i + 1];
-          if (lyric.startTime < currentTime &&
-              nextLyric.startTime > currentTime) {
+          if ((lyric.startTime - 0.9) < currentTime &&
+              (nextLyric.startTime - 0.9) > currentTime) {
             setState(() {
               oldLyricLine = currentLyricLine;
               currentLyricLine = lyric.lyric;
@@ -78,8 +78,7 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
     if (await file.exists()) {
       return await file.readAsLines();
     } else {
-      dispose();
-      return ["", "", "", ""];
+      return ['error'];
     }
   }
 
@@ -129,6 +128,9 @@ class Lyric {
   double startTime;
 
   factory Lyric.parse(String line) {
+    if (line == "error") {
+      return Lyric("No Lyrics found", 0);
+    }else {
     int index = line.indexOf("]");
     String timeStamp = line.substring(1, index);
     String minutes = timeStamp.substring(0, 2);
@@ -136,6 +138,7 @@ class Lyric {
     double time = int.parse(minutes) * 60 + double.parse(seconds);
     String text = line.substring(index + 1);
     return Lyric(text, time);
+    }
   }
 
   Lyric(this.lyric, this.startTime);

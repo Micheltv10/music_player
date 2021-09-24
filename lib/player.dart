@@ -1,10 +1,6 @@
-<<<<<<< 0e4f28bf6c81a6e75f2360bd7b8aadfb0cdbfe8b
 import 'package:flutter/material.dart';
-=======
 import 'dart:io';
-
 import 'package:flutter/services.dart';
->>>>>>> midi method channel added
 import 'package:ocarina/ocarina.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -19,23 +15,21 @@ class Player {
   OcarinaPlayer? pendingPlayer;
   YoutubePlayerState youtubePlayerState = YoutubePlayerState.off;
   final YoutubePlayerController youtubeController;
-<<<<<<< 0e4f28bf6c81a6e75f2360bd7b8aadfb0cdbfe8b
   final Widget youtubeWidget;
 
   Player() : this._(YoutubePlayerController(initialVideoId: 'aAkMkVFwAoo'));
   Player._(YoutubePlayerController controller) : youtubeController = controller, youtubeWidget = SizedBox(child: YoutubePlayer(controller: controller), width: 1, height: 1,);
-=======
-  final YoutubePlayer youtubeWidget;
   static const midiPlayerChannel = MethodChannel('midi.partmaster.de/player');
   bool midiLoaded = false;
 
-  Player() : this._(YoutubePlayerController(initialVideoId: ''));
-  Player._(YoutubePlayerController controller)
-      : youtubeController = controller,
-        youtubeWidget = YoutubePlayer(controller: controller);
->>>>>>> midi method channel added
+  Future<void> load(String filePath) {
+    final uri = File(filePath).absolute.uri;
+    print('load($filePath) => $uri');
+    return loadUri(uri);
+  }
 
   Future<void> loadUri(Uri uri) {
+    print('loadUri($uri)');
     youtubePlayerState = YoutubePlayerState.off;
     if (pendingPlayer != null) {
       pendingPlayer?.dispose();
@@ -46,16 +40,13 @@ class Player {
     }
     if (uri.isScheme("file")) {
       pendingPlayer = OcarinaPlayer(filePath: uri.toFilePath());
+      print('player${pendingPlayer!.hashCode}.load(${uri.toFilePath()})}');
       return pendingPlayer?.load() ?? Future.value(null);
     }
 
     final videoId = YoutubePlayer.convertUrlToId(uri.toString());
-<<<<<<< 0e4f28bf6c81a6e75f2360bd7b8aadfb0cdbfe8b
     if(videoId!=null) {
       print('YoutubePlayerState.uri videoId= $videoId');
-=======
-    if (videoId != null) {
->>>>>>> midi method channel added
       youtubeController.load(videoId);
       youtubePlayerState = YoutubePlayerState.pending;
     }
@@ -109,16 +100,8 @@ class Player {
     }
   }
 
-  Future<void> load(String filePath) {
-    if (filePath.endsWith('.mid') || filePath.endsWith('.midi')) {
-      return _midiLoad(File(filePath).uri);
-    }
-    youtubePlayerState = YoutubePlayerState.off;
-    pendingPlayer = OcarinaPlayer(filePath: filePath);
-    return pendingPlayer?.load() ?? Future.value(null);
-  }
-
   Future<void> play() {
+    print('play');
     if(midiLoaded) {
       if (currentPlayer != null) {
         currentPlayer?.dispose();
@@ -142,6 +125,7 @@ class Player {
       youtubeController.play();
       return Future.value(null);
     }
+    print('player${currentPlayer?.hashCode}.play');
     return currentPlayer?.play() ?? Future.value(null);
   }
 
@@ -178,7 +162,7 @@ class Player {
 
   bool isLoaded() {
     bool result = midiLoaded || (currentPlayer?.isLoaded() ?? false);
-    print("isLoaded=$result");
+    print("player${currentPlayer?.hashCode}.isLoaded=$result");
     return result;
   }
 

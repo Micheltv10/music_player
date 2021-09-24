@@ -4,7 +4,7 @@ import 'package:marquee/marquee.dart';
 import 'package:music_player/karaoke.dart';
 import 'package:music_player/player.dart';
 import 'package:music_player/playpausebutton.dart';
-import 'package:audiotagger/audiotagger.dart';
+import 'package:music_player/tagger.dart';
 import 'package:music_player/types.dart';
 import 'main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -15,7 +15,7 @@ class PlayerWidget extends StatefulWidget {
   final SongData currentSong;
   final String currentArtist;
   final BoolConsumer setPlaying;
-  final Audiotagger tagger;
+  final AudioTagger tagger;
   const PlayerWidget(
       {Key? key,
       required this.playing,
@@ -222,7 +222,7 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
   Timer? timer;
 
   startTimer() {
-    timer = Timer.periodic(const Duration(milliseconds: 300), onTimer);
+    //timer = Timer.periodic(const Duration(milliseconds: 300), onTimer);
   }
 
   onTimer(Timer timer) async {

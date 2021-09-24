@@ -26,7 +26,7 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
 
   void startTimer(Duration time) async {
     await getLyricLines();
-    Timer timer = Timer.periodic(time, updateLyricLine);
+    Timer.periodic(time, updateLyricLine);
   }
 
   void updateLyricLine(Timer timer) async {

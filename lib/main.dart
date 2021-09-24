@@ -5,16 +5,16 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:marquee/marquee.dart';
 import 'package:music_player/optionpage.dart';
 import 'package:music_player/player.dart';
+import 'package:music_player/tagger.dart';
 import 'package:music_player/playpausebutton.dart';
 import 'package:music_player/types.dart';
 import 'helpers/get_directory_music.dart';
-import 'package:audiotagger/audiotagger.dart';
 import 'playerwidget.dart';
 
 typedef BoolConsumer = void Function(bool value);
 typedef SetStateFunction = void Function(void Function() fn);
 void main() async {
-  final tagger = Audiotagger();
+  final tagger = AudioTagger();
   runApp(MyApp(
     player: Player(),
     songs: await getDirectoriesMusic(tagger),
@@ -27,7 +27,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   List<SongData> songs;
   final Player player;
-  final Audiotagger tagger;
+  final AudioTagger tagger;
   MyApp({Key? key, required this.songs, required this.player, required this.tagger})
       : super(key: key);
 
@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
 // ignore: must_be_immutable
 class MyHomePage extends StatefulWidget {
   final Player player;
-  final Audiotagger tagger;
+  final AudioTagger tagger;
   MyHomePage(
       {Key? key,
       required this.title,
@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool? playing;
   SongData? get currentSong => nextSongTimer?.currentSong;
   String? get currentArtist => nextSongTimer?.currentArtist;
-  Audiotagger get tagger => widget.tagger;
+  AudioTagger get tagger => widget.tagger;
 
   NextSongTimer? nextSongTimer;
 
@@ -414,7 +414,7 @@ class NextSongTimer {
   List<SongData> songs;
   Timer? timer;
   String? currentArtist;
-  Audiotagger tagger;
+  AudioTagger tagger;
 
   NextSongTimer(
       {required this.currentSong,

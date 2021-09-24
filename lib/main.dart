@@ -19,7 +19,6 @@ void main() async {
     player: Player(),
     songs: await getDirectoriesMusic(tagger),
     tagger: tagger,
-
   ));
 }
 
@@ -28,7 +27,11 @@ class MyApp extends StatelessWidget {
   List<SongData> songs;
   final Player player;
   final AudioTagger tagger;
-  MyApp({Key? key, required this.songs, required this.player, required this.tagger})
+  MyApp(
+      {Key? key,
+      required this.songs,
+      required this.player,
+      required this.tagger})
       : super(key: key);
 
   // This widget is the root of your application.
@@ -41,7 +44,8 @@ class MyApp extends StatelessWidget {
         home: MyHomePage(
           title: 'Home',
           songs: songs,
-          player: player, tagger: tagger,
+          player: player,
+          tagger: tagger,
         ),
       );
 }
@@ -54,7 +58,8 @@ class MyHomePage extends StatefulWidget {
       {Key? key,
       required this.title,
       required this.songs,
-      required this.player, required this.tagger})
+      required this.player,
+      required this.tagger})
       : super(key: key);
   List<SongData> songs;
   final String title;
@@ -90,7 +95,6 @@ class _MyHomePageState extends State<MyHomePage> {
         setState: setState,
         tagger: tagger);
   }
- 
 
   Widget songNameLength(String songName) {
     if (songName.toString().length > 15) {
@@ -176,7 +180,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         width: 50,
                         child: Container(
                           child: FutureBuilder<Widget>(
-                            future: getArtwork(currentSong!.songUri.toFilePath()),
+                            future:
+                                getArtwork(currentSong!.songUri.toFilePath()),
                             builder: (BuildContext context,
                                 AsyncSnapshot<Widget> snapshot) {
                               if (snapshot.hasData) {
@@ -192,22 +197,40 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: 75,
-                      width: size.width * 0.48,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 25,
-                            child: songNameLength(currentSong!.title),
-                          ),
-                          SizedBox(
-                            height: 22,
-                            child: artistNameLength(currentArtist!),
-                          ),
-                        ],
+                    GestureDetector(
+                      onPanUpdate: (details) async{
+                        // Swiping in right direction.
+                        if (details.delta.dx > 0) {}
+
+                        // Swiping in left direction.
+                        if (details.delta.dx < 0) {
+                          await NextSongTimer(
+                            currentSong: currentSong,
+                            currentArtist: currentArtist,
+                            player: player,
+                            songs: widget.songs,
+                            setState: setState,
+                            tagger: tagger,
+                          ).skipSong();
+                        }
+                      },
+                      child: SizedBox(
+                        height: 75,
+                        width: size.width * 0.48,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 25,
+                              child: songNameLength(currentSong!.title),
+                            ),
+                            SizedBox(
+                              height: 22,
+                              child: artistNameLength(currentArtist!),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const Spacer(),
@@ -235,7 +258,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         const RoundSliderOverlayShape(overlayRadius: 8.0),
                   ),
                   child: FutureBuilder<double>(
-                      future: getSongDuration(currentSong!.songUri.toFilePath()),
+                      future:
+                          getSongDuration(currentSong!.songUri.toFilePath()),
                       builder: (context, snapshot) {
                         return PositionSliderWidget(
                             maxPosition:
@@ -249,22 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
     } else {
-      return SizedBox(
-        width: double.infinity,
-        height: 100,
-        child: Container(
-          decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(20),
-              ),
-              color: Colors.deepPurple[300]),
-          child: const Center(
-              child: Text(
-            'No Song selcted',
-            style: TextStyle(fontSize: 30),
-          )),
-        ),
-      );
+      return Container();
     }
   }
 
@@ -276,16 +285,18 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: <Widget>[
           Padding(
-              padding: EdgeInsets.only(right: 20.0),
+              padding: const EdgeInsets.only(right: 20.0),
               child: GestureDetector(
                 onTap: () {
                   Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => MainOptionMenuWidget(player: widget.player,)),
-              );
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MainOptionMenuWidget(
+                              player: widget.player,
+                            )),
+                  );
                 },
-                child: Icon(Icons.more_vert),
+                child: const Icon(Icons.more_vert),
               )),
         ],
       ),
@@ -333,7 +344,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         leading: CircleAvatar(
                           child: Center(
                             child: FutureBuilder<Widget>(
-                              future: getArtwork(widget.songs[index].songUri.toFilePath()),
+                              future: getArtwork(
+                                  widget.songs[index].songUri.toFilePath()),
                               builder: (BuildContext context,
                                   AsyncSnapshot<Widget> snapshot) {
                                 if (snapshot.hasData) {
@@ -346,22 +358,23 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         onTap: () async {
-                          final String filePath = widget.songs[index].songUri.toFilePath();
+                          final String filePath =
+                              widget.songs[index].songUri.toFilePath();
                           final Map? map =
                               await tagger.readTagsAsMap(path: filePath);
 
                           await player.loadUri(widget.songs[index].songUri);
-                          print("_MyHomePageState.build Player loaded");
                           player.play();
-                          print("_MyHomePageState.build Player Played");
                           nextSongTimer?.stopTimer();
                           setState(() {
                             nextSongTimer = NextSongTimer(
-                                currentSong: widget.songs[index],
-                                currentArtist: map?["artist"],
-                                player: player,
-                                songs: widget.songs,
-                                setState: setState, tagger: tagger,);
+                              currentSong: widget.songs[index],
+                              currentArtist: map?["artist"],
+                              player: player,
+                              songs: widget.songs,
+                              setState: setState,
+                              tagger: tagger,
+                            );
                             setPlaying(true);
                           });
                           nextSongTimer
@@ -398,17 +411,16 @@ class _MyHomePageState extends State<MyHomePage> {
     return artwork;
   }
 
-  Future<double> getSongDuration(String songName) async{
+  Future<double> getSongDuration(String songName) async {
     final String filePath = songName;
     final map = await tagger.readAudioFileAsMap(path: filePath);
-    int output = map?['length']; 
+    int output = map?['length'];
     return output.toDouble();
   }
 }
 
 class NextSongTimer {
   SongData? currentSong;
-
 
   Player player;
 
@@ -419,13 +431,14 @@ class NextSongTimer {
   String? currentArtist;
   AudioTagger tagger;
 
-  NextSongTimer(
-      {required this.currentSong,
-      this.currentArtist,
-      required this.songs,
-      required this.player,
-      required this.setState,
-      required this.tagger,});
+  NextSongTimer({
+    required this.currentSong,
+    this.currentArtist,
+    required this.songs,
+    required this.player,
+    required this.setState,
+    required this.tagger,
+  });
 
   void startTimer(Duration time) {
     timer?.cancel();
@@ -466,6 +479,31 @@ class NextSongTimer {
           currentArtist = map?["artist"];
         });
       }
+    }
+  }
+
+  Future<void> skipSong() async {
+    if (queue.isNotEmpty) {
+      String filePathQueue = queue[0].songUri.toFilePath();
+      final Map? map = await tagger.readTagsAsMap(path: filePathQueue);
+      await player.load(filePathQueue);
+      await player.play();
+      setState(() {
+        currentSong = queue[0];
+        currentArtist = map?["artist"];
+      });
+      queue.removeAt(0);
+    } else {
+      final _random = Random();
+      SongData newSong = songs[_random.nextInt(songs.length)];
+      Uri uri = newSong.songUri;
+      final Map? map = await tagger.readTagsAsMap(path: uri.toFilePath());
+      await player.loadUri(uri);
+      await player.play();
+      setState(() {
+        currentSong = newSong;
+        currentArtist = map?["artist"];
+      });
     }
   }
 

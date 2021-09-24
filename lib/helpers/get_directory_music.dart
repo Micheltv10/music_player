@@ -49,7 +49,7 @@ Future<SongData> createSongDatafromFileSystemEntity(
             name: "Centarei_ao_s_1",
             uri: Uri.parse("/storage/emulated/0/Download/cantarei_ao_s_1.mid")),
       ],
-      images: [],
+      images: [ImageData(kind: ImageKind.notes, name: "Centarei_ao_senhor", uri: Uri.parse("/storage/emulated/0/Download/centarei_ao_senhor.gif"))],
       texts: [],
       title: file.toString().substring(35, file.toString().length - 5));
 }

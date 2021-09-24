@@ -105,7 +105,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             ),
             CarouselSlider(
               options: CarouselOptions(height: 400.0, viewportFraction: 0.95),
-              items: [1, 2, 3].map((i) {
+              items: [1, 2, 3, 4].map((i) {
                 return FutureBuilder<Widget>(
                   future: sliderCarousel(i),
                   builder:
@@ -189,7 +189,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       return KaraokeWidget(song: widget.currentSong, player: widget.player);
     } if (i == 3) {
       return SelectAudioKindWidget(player: widget.player, currentSong: widget.currentSong);
-    } else {
+    }else {
       return const Text('How?');
     }
   }
@@ -356,4 +356,21 @@ Widget audioDataKindIcon(AudioData audioData) {
     return Text('How?');
   }
   
+}
+
+class ShowNotesWidget extends StatefulWidget {
+  final SongData songData;
+  const ShowNotesWidget({ Key? key, required this.songData,}) : super(key: key);
+
+  @override
+  _ShowNotesWidgetState createState() => _ShowNotesWidgetState();
+}
+
+class _ShowNotesWidgetState extends State<ShowNotesWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      child: Image(image: NetworkImage((widget.songData.images.firstWhere((element) => element.kind == ImageKind.notes)).uri.toFilePath()),),
+    );
+  }
 }

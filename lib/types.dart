@@ -13,7 +13,12 @@ enum AudioKind {
   firstVoice,
   secondVoice,
   thirdVoice,
-  guitar
+  guitar,
+  soprano,
+  alto,
+  tenor,
+  bass,
+  together,  
 }
 
 enum TextKind {
@@ -21,13 +26,13 @@ enum TextKind {
   phonetics,
   translation,
 }
-typedef DurationProvider = Future<Duration> Function();
+typedef DurationProvider = Future<Duration> Function(AudioData audio);
 class AudioData {
   final AudioKind kind;
   final String name;
   final Uri uri;
   final Locale locale;
-  Future<Duration> get duration => durationProvider();
+  Future<Duration> get duration => durationProvider(this);
   final DurationProvider durationProvider; 
 
   AudioData({required this.durationProvider, required this.kind, required this.locale, required this.name, required this.uri});
@@ -50,6 +55,7 @@ class ImageData {
   ImageData({required this.kind, required this.name, required this.uri});
 }
 class SongData {
+  static final defaultCoverUri = Uri.parse('assets://images/defaultImage.jpg');
   final int index;
   final String title;
   final String subtitle;
@@ -57,6 +63,8 @@ class SongData {
   final List<ImageData> images;
   final List<TextData> texts;
   Uri get songUri => audios.singleWhere((audio) => audio.kind == AudioKind.song).uri;
+  Uri get coverUri => images.singleWhere((image) => image.kind == ImageKind.cover).uri;
+  Future<Duration> get songDuration => audios.singleWhere((audio) => audio.kind == AudioKind.song).duration;
 
   SongData({required this.index, required this.subtitle, required this.audios, required this.images, required this.texts, required this.title});
 }
@@ -116,12 +124,12 @@ class TruePredicate implements SongPredicate {
   static const instance = TruePredicate(); 
 }
 class SongProvider {
-  final Iterable<SongData> songs;
+  final Future<Iterable<SongData>> songs;
   SongProvider(this.songs);
-  Iterable<SongData> filterAndSort({
+  Future<Iterable<SongData>> filterAndSort({
     SongPredicate predicate=TruePredicate.instance, 
     SongComparator comparator=SongComparators.compareNothing,
-    }) {
-      return songs.where((song) => predicate.test(song)).toList()..sort(comparator);
+    }) async {
+      return (await songs).where((song) => predicate.test(song)).toList()..sort(comparator);
   }
 }

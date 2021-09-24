@@ -5,6 +5,11 @@ import 'package:music_player/tagger.dart';
 import 'package:music_player/types.dart';
 // import 'package:permission_handler/permission_handler.dart';
 
+class LocalSongProvider extends SongProvider {
+  LocalSongProvider(AudioTagger tagger) : super(getDirectoriesMusic(tagger));
+
+}
+
 Locale de = const Locale.fromSubtags(languageCode: 'de');
 bool permissionGranted = false;
 /*
@@ -37,13 +42,13 @@ Future<SongData> createSongDatafromFileSystemEntity(
       subtitle: "",
       audios: [
         AudioData(
-            durationProvider: () => getAudioDuration(file.uri, tagger),
+            durationProvider: (_) => getAudioDuration(file.uri, tagger),
             kind: AudioKind.song,
             locale: de,
             name: file.toString().substring(35, file.toString().length - 5),
             uri: file.absolute.uri),
         AudioData(
-            durationProvider: () => getAudioDuration(file.uri, tagger),
+            durationProvider: (_) => getAudioDuration(file.uri, tagger),
             kind: AudioKind.firstVoice,
             locale: de,
             name: "Centarei_ao_s_1",

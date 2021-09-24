@@ -5,26 +5,31 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:marquee/marquee.dart';
 import 'package:music_player/optionpage.dart';
 import 'package:music_player/player.dart';
-import 'package:music_player/tagger.dart';
 import 'package:music_player/playpausebutton.dart';
+import 'package:music_player/song_provider.dart';
+import 'package:music_player/tagger.dart';
 import 'package:music_player/types.dart';
-import 'helpers/get_directory_music.dart';
 import 'playerwidget.dart';
 
 typedef BoolConsumer = void Function(bool value);
 typedef SetStateFunction = void Function(void Function() fn);
 void main() async {
   final tagger = AudioTagger();
-  runApp(MyApp(
-    player: Player(),
-    songs: await getDirectoriesMusic(tagger),
-    tagger: tagger,
+  runApp(FutureBuilder<Iterable<SongData>>(
+    future: NetworkSongProvider(tagger).songs,
+    builder: (context, snapshot) {
+      return snapshot.hasData ? MyApp(
+        player: Player(),
+        songs: snapshot.data! ,
+        tagger: tagger,
+      ) : CircularProgressIndicator();
+    }
   ));
 }
 
 // ignore: must_be_immutable
 class MyApp extends StatelessWidget {
-  List<SongData> songs;
+  Iterable<SongData> songs;
   final Player player;
   final AudioTagger tagger;
   MyApp(
@@ -61,7 +66,7 @@ class MyHomePage extends StatefulWidget {
       required this.player,
       required this.tagger})
       : super(key: key);
-  List<SongData> songs;
+  Iterable<SongData> songs;
   final String title;
 
   @override
@@ -179,6 +184,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 50,
                         width: 50,
                         child: Container(
+                          child: Image.network(currentSong!.coverUri.toString()),
+                          /*
                           child: FutureBuilder<Widget>(
                             future:
                                 getArtwork(currentSong!.songUri.toFilePath()),
@@ -190,6 +197,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               return const CircularProgressIndicator();
                             },
                           ),
+                          */
                           decoration: const BoxDecoration(
                               color: Colors.deepPurple,
                               borderRadius:
@@ -227,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                             SizedBox(
                               height: 22,
-                              child: artistNameLength(currentArtist!),
+                              child: artistNameLength(currentArtist ?? ''),
                             ),
                           ],
                         ),
@@ -257,13 +265,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     overlayShape:
                         const RoundSliderOverlayShape(overlayRadius: 8.0),
                   ),
-                  child: FutureBuilder<double>(
+                  child: FutureBuilder<Duration>(
                       future:
-                          getSongDuration(currentSong!.songUri.toFilePath()),
+                          currentSong!.songDuration,
+                          // getSongDuration(currentSong!.songUri.toFilePath()),
                       builder: (context, snapshot) {
                         return PositionSliderWidget(
                             maxPosition:
-                                snapshot.hasData ? snapshot.data! : 200000,
+                                snapshot.hasData ? snapshot.data!.inMilliseconds.toDouble() : 200000,
                             player: player);
                       }),
                 )
@@ -329,7 +338,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.green,
                         closeOnTap: false,
                         onTap: () async {
-                          nextSongTimer?.addToQueue(widget.songs[index]);
+                          nextSongTimer?.addToQueue(widget.songs.elementAt(index));
                         },
                       )
                     ],
@@ -340,12 +349,13 @@ class _MyHomePageState extends State<MyHomePage> {
                             Radius.circular(5),
                           )),
                       child: ListTile(
-                        title: Text(widget.songs[index].title),
+                        title: Text(widget.songs.elementAt(index).title),
                         leading: CircleAvatar(
                           child: Center(
-                            child: FutureBuilder<Widget>(
-                              future: getArtwork(
-                                  widget.songs[index].songUri.toFilePath()),
+                            child: Image.network(widget.songs.elementAt(index).coverUri.toString()),
+                            /*
+                            FutureBuilder<Widget>(
+                              future: getArtwork(widget.songs.elementAt(index).songUri.toFilePath()),
                               builder: (BuildContext context,
                                   AsyncSnapshot<Widget> snapshot) {
                                 if (snapshot.hasData) {
@@ -355,21 +365,23 @@ class _MyHomePageState extends State<MyHomePage> {
                                 return const CircularProgressIndicator();
                               },
                             ),
+                            */
                           ),
                         ),
                         onTap: () async {
+                          /*
                           final String filePath =
-                              widget.songs[index].songUri.toFilePath();
+                              widget.songs.elementAt(index).songUri.toFilePath();
                           final Map? map =
                               await tagger.readTagsAsMap(path: filePath);
-
-                          await player.loadUri(widget.songs[index].songUri);
+                          */
+                          await player.loadUri(widget.songs.elementAt(index).songUri);
                           player.play();
                           nextSongTimer?.stopTimer();
                           setState(() {
                             nextSongTimer = NextSongTimer(
-                              currentSong: widget.songs[index],
-                              currentArtist: map?["artist"],
+                              currentSong: widget.songs.elementAt(index),
+                              currentArtist: null, // map?["artist"],
                               player: player,
                               songs: widget.songs,
                               setState: setState,
@@ -396,6 +408,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
+      bottomNavigationBar: widget.player.youtubeWidget,
     );
   }
 
@@ -426,7 +439,7 @@ class NextSongTimer {
 
   List<SongData> queue = [];
   SetStateFunction setState;
-  List<SongData> songs;
+  Iterable<SongData> songs;
   Timer? timer;
   String? currentArtist;
   AudioTagger tagger;
@@ -442,7 +455,7 @@ class NextSongTimer {
 
   void startTimer(Duration time) {
     timer?.cancel();
-    timer = Timer.periodic(time, playNextSong);
+    // timer = Timer.periodic(time, playNextSong);
   }
 
   void stopTimer() {
@@ -453,7 +466,6 @@ class NextSongTimer {
     String filePath = currentSong!.songUri.toFilePath();
     final Map? audiomap = await tagger.readAudioFileAsMap(path: filePath);
     int length = audiomap!['length'];
-
     int position = player.isLoaded() == true ? (await player.position()) : 0;
 
     if (((position / 1000) + 1) >= length) {
@@ -468,8 +480,8 @@ class NextSongTimer {
         });
         queue.removeAt(0);
       } else {
-        final _random = Random();
-        SongData newSong = songs[_random.nextInt(songs.length)];
+        final index = Random().nextInt(songs.length);
+        SongData newSong = songs.elementAt(index);
         Uri uri = newSong.songUri;
         final Map? map = await tagger.readTagsAsMap(path: uri.toFilePath());
         await player.loadUri(uri);
@@ -494,8 +506,8 @@ class NextSongTimer {
       });
       queue.removeAt(0);
     } else {
-      final _random = Random();
-      SongData newSong = songs[_random.nextInt(songs.length)];
+      final index = Random().nextInt(songs.length);
+      SongData newSong = songs.elementAt(index);
       Uri uri = newSong.songUri;
       final Map? map = await tagger.readTagsAsMap(path: uri.toFilePath());
       await player.loadUri(uri);

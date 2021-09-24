@@ -19,8 +19,28 @@ class Player {
   final YoutubePlayerController youtubeController;
   final Widget youtubeWidget;
 
-  Player() : this._(YoutubePlayerController(initialVideoId: 'aAkMkVFwAoo'));
-  Player._(YoutubePlayerController controller) : youtubeController = controller, youtubeWidget = SizedBox(child: YoutubePlayer(controller: controller), width: 1, height: 1,);
+  static void onEnded(YoutubeMetaData metaData) {
+    final duration = metaData.duration;
+    final author = metaData.author;
+    final title = metaData.title;
+    final videoId = metaData.videoId;
+    print('onEnded duration=$duration, author=$author, title=$title, videoId=$videoId');
+  }
+
+  Player()
+      : this._(
+          YoutubePlayerController(
+            initialVideoId: 'aAkMkVFwAoo',
+            flags: YoutubePlayerFlags(autoPlay: false),
+          ),
+        );
+  Player._(YoutubePlayerController controller)
+      : youtubeController = controller,
+        youtubeWidget = SizedBox(
+          child: YoutubePlayer(controller: controller, onEnded: onEnded,),
+          width: 1,
+          height: 1,
+        );
   static const midiPlayerChannel = MethodChannel('midi.partmaster.de/player');
   bool midiLoaded = false;
 
@@ -47,23 +67,27 @@ class Player {
     }
 
     final videoId = YoutubePlayer.convertUrlToId(uri.toString());
-    if(videoId!=null) {
-      print('YoutubePlayerState.uri videoId= $videoId');
+    if (videoId != null) {
+      print('loadUri: YoutubePlayerState.uri videoId= $videoId loading...');
       youtubeController.load(videoId);
+      final duration = youtubeController.metadata.duration;
       youtubePlayerState = YoutubePlayerState.pending;
+      print('loadUri: YoutubePlayerState.uri videoId= $videoId loaded duration=$duration');
     }
     return Future.value(null);
   }
 
   Future<void> _midiLoad(Uri uri) async {
     try {
-      final String result = await midiPlayerChannel.invokeMethod('load', {'uri':uri.toString()});
+      final String result =
+          await midiPlayerChannel.invokeMethod('load', {'uri': uri.toString()});
       midiLoaded = true;
       print("midiPlayerChannel.load returns: '$result'.");
     } on PlatformException catch (e) {
       print("midiPlayerChannel.load failed: '${e.message}'.");
     }
   }
+
   Future<void> _midiPlay() async {
     try {
       final String result = await midiPlayerChannel.invokeMethod('play');
@@ -73,6 +97,7 @@ class Player {
       print("midiPlayerChannel.play failed: '${e.message}'.");
     }
   }
+
   Future<void> _midiPause() async {
     try {
       final String result = await midiPlayerChannel.invokeMethod('pause');
@@ -81,6 +106,7 @@ class Player {
       print("midiPlayerChannel.pause failed: '${e.message}'.");
     }
   }
+
   void _midiDispose() async {
     midiLoaded = false;
     try {
@@ -104,7 +130,7 @@ class Player {
 
   Future<void> play() {
     print('play');
-    if(midiLoaded) {
+    if (midiLoaded) {
       if (currentPlayer != null) {
         currentPlayer?.dispose();
         currentPlayer = null;
@@ -125,8 +151,12 @@ class Player {
         currentPlayer?.dispose();
         currentPlayer = null;
       }
+      print('play: youtubePlayerState play...');
       youtubePlayerState = YoutubePlayerState.on;
       youtubeController.play();
+      final duration = youtubeController.metadata.duration;
+      print('play: YoutubePlayerState playing loaded duration=$duration');
+      print('play: youtubePlayerState playing');
       return Future.value(null);
     }
     print('player${currentPlayer?.hashCode}.play');
@@ -134,7 +164,7 @@ class Player {
   }
 
   Future<void> pause() {
-    if(midiLoaded) {
+    if (midiLoaded) {
       _midiPause();
     }
     if (youtubePlayerState == YoutubePlayerState.on) {
@@ -155,7 +185,7 @@ class Player {
   }
 
   Future<int> position() {
-    if(midiLoaded) {
+    if (midiLoaded) {
       return _midiPosition();
     }
     if (youtubePlayerState == YoutubePlayerState.on) {
@@ -165,7 +195,9 @@ class Player {
   }
 
   bool isLoaded() {
-    bool result = midiLoaded || (currentPlayer?.isLoaded() ?? false);
+    bool result = midiLoaded ||
+        youtubePlayerState != YoutubePlayerState.off ||
+        (currentPlayer?.isLoaded() ?? false);
     return result;
   }
 

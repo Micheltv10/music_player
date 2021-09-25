@@ -15,9 +15,10 @@ extension StringUriExtension on String {
 }
 
 extension MidiFileExtension on MidiFile {
-    static int getSumOfDeltaTicks(List<MidiEvent> events) {
-    return  events.fold(0, foldEventsToTickSum);
+  static int getSumOfDeltaTicks(List<MidiEvent> events) {
+    return events.fold(0, foldEventsToTickSum);
   }
+
   static int foldEventsToTickSum(int previousValue, MidiEvent event) {
     return previousValue + event.deltaTime;
   }
@@ -25,33 +26,165 @@ extension MidiFileExtension on MidiFile {
   static int foldTracksToMaxTicks(int previousValue, List<MidiEvent> track) {
     return max(previousValue, getSumOfDeltaTicks(track));
   }
+
   Duration get duration {
-      int beatsPerMinute = 120;
-      int ticks = this.tracks.fold(0, foldTracksToMaxTicks);
-      int ticksPerBeat = this.header.ticksPerBeat ?? 192;
-      double beats = ticks / ticksPerBeat;
-      double minutes = beats * beatsPerMinute;
-      return Duration(minutes: minutes.toInt());
-  
+    int beatsPerMinute = 120;
+    int ticks = this.tracks.fold(0, foldTracksToMaxTicks);
+    int ticksPerBeat = this.header.ticksPerBeat ?? 192;
+    double beats = ticks / ticksPerBeat;
+    double minutes = beats * beatsPerMinute;
+    return Duration(minutes: minutes.toInt());
   }
 }
 
 class Locales {
-  static Locale de = Locale('de');
-  static Locale fr = Locale('fr');
-  static Locale und = Locale('und');
+  static const Locale de = Locale('de');
+  static const Locale en = Locale('en');
+  static const Locale fr = Locale('fr');
+  static const Locale und = Locale('und');
 }
 
-class NetworkSongProvider extends SongProvider {
+class NetworkSongData extends SongData {
+  NetworkSongData({
+    required AudioTagger tagger,
+    required int index,
+    required String title,
+    String? album,
+    String? youtubeId,
+    Duration? duration,
+    Locale locale = Locales.und,
+    String? soprano,
+    String? alto,
+    String? tenor,
+    String? bass,
+    String? together,
+    String? guitar,
+    String? lyrics,
+    String? phonetics,
+    String? translation,
+    String? pronunciation,
+    String? notes,
+    String? cover,
+  }) : super(
+          index: index,
+          title: title,
+          subtitle: album ?? '',
+          audios: [
+            if (youtubeId != null)
+              AudioData(
+                durationProvider: (_) =>
+                    Future.value(duration ?? Duration.zero),
+                kind: AudioKind.song,
+                locale: locale,
+                name: title,
+                uri: 'https://www.youtube.com/watch?v=$youtubeId'.uri,
+              ),
+            if (soprano != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.soprano,
+                locale: Locales.und,
+                name: 'soprano',
+                uri: soprano.uri,
+              ),
+            if (alto != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.alto,
+                locale: Locales.und,
+                name: 'alto',
+                uri: alto.uri,
+              ),
+            if (tenor != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.tenor,
+                locale: Locales.und,
+                name: 'tenor',
+                uri: tenor.uri,
+              ),
+            if (bass != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.bass,
+                locale: Locales.und,
+                name: 'bass',
+                uri: bass.uri,
+              ),
+            if (together != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.together,
+                locale: Locales.und,
+                name: 'together',
+                uri: together.uri,
+              ),
+            if (guitar != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.guitar,
+                locale: Locales.und,
+                name: 'guitar',
+                uri: guitar.uri,
+              ),
+            if (pronunciation != null)
+              AudioData(
+                durationProvider: (audio) =>
+                    provideMp3Duration(audio.uri, tagger),
+                kind: AudioKind.guitar,
+                locale: Locales.und,
+                name: 'pronunciation',
+                uri: pronunciation.uri,
+              ),
+          ],
+          texts: [
+            if (lyrics != null)
+              TextData(
+                kind: TextKind.lyrics,
+                name: 'lyrics',
+                uri: lyrics.uri,
+                locale: locale,
+              ),
+            if (phonetics != null)
+              TextData(
+                kind: TextKind.phonetics,
+                name: 'phonetics',
+                uri: phonetics.uri,
+                locale: locale,
+              ),
+            if (translation != null)
+              TextData(
+                kind: TextKind.translation,
+                name: 'translation',
+                uri: translation.uri,
+                locale: Locales.de,
+              )
+          ],
+          images: [
+            if (cover != null)
+              ImageData(
+                kind: ImageKind.cover,
+                name: 'cover',
+                uri: cover.uri,
+              ),
+            if (notes != null)
+              ImageData(
+                kind: ImageKind.notes,
+                name: 'notes',
+                uri: notes.uri,
+              )
+          ],
+        );
 
   static Future<List<int>> readResponse(HttpClientResponse response) {
-  final completer = Completer<List<int>>();
-  final contents = <int>[];
-  response.listen((data) {
-    contents.addAll(data);
-  }, onDone: () => completer.complete(contents));
-  return completer.future;
-}
+    final completer = Completer<List<int>>();
+    final contents = <int>[];
+    response.listen((data) {
+      contents.addAll(data);
+    }, onDone: () => completer.complete(contents));
+    return completer.future;
+  }
+
   static Future<Duration> provideMidiDuration(Uri uri) async {
     final request = await HttpClient().getUrl(uri);
     final response = await request.close();
@@ -65,80 +198,12 @@ class NetworkSongProvider extends SongProvider {
     return Future.value(Duration(seconds: 100));
   }
 
-  static Future<Duration> provideMp3Duration(Uri uri, AudioTagger tagger) async {
-  final String filePath = uri.toFilePath();
-  final Map map = await tagger.readAudioFileAsMap(path: filePath) ?? {};
-  final length = map.containsKey('length') == true ? map['length'] as int : 100;
-  return Duration(seconds: length);  }
-
-  NetworkSongProvider(AudioTagger tagger)
-      : super(Future.value([
-          SongData(
-            index: 0,
-            title: 'Dans nos obscurités',
-            subtitle: 'Alleluia',
-            audios: [
-              AudioData(
-                durationProvider: (audio) => provideYoutubeDuration(audio.uri),
-                kind: AudioKind.song,
-                locale: Locales.fr,
-                name: 'song',
-                uri: 'https://www.youtube.com/watch?v=pfin1W0v7Ts'.uri,
-              ),
-              AudioData(
-                durationProvider: (audio) => provideMidiDuration(audio.uri),
-                kind: AudioKind.soprano,
-                locale: Locales.und,
-                name: 'soprano',
-                uri: 'https://www.taize.fr/IMG/mid/danobs_s.mid'.uri,
-              ),
-              AudioData(
-                durationProvider: (audio) => provideMidiDuration(audio.uri),
-                kind: AudioKind.guitar,
-                locale: Locales.und,
-                name: 'guitar',
-                uri: 'https://www.taize.fr/IMG/mid/danobs_g.mid'.uri,
-              ),
-              AudioData(
-                durationProvider: (audio) => provideMp3Duration(audio.uri, tagger),
-                kind: AudioKind.pronunciation,
-                locale: Locales.fr,
-                name: 'pronunciation',
-                uri: 'https://taize.ulinater.de/french/dans_nos_obscurites.mp3'
-                    .uri,
-              ),
-            ],
-            images: [
-              ImageData(
-                kind: ImageKind.notes,
-                name: 'notes',
-                uri: 'https://www.taize.fr/IMG/gif/dans_nos_obscurites.gif'.uri,
-              ),
-              ImageData(
-                kind: ImageKind.cover,
-                name: 'cover',
-                uri:
-                    'https://img.discogs.com/cepNOlDOJGHeO4AtaS-BsaykXsI=/fit-in/600x598/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-8770045-1595973508-2049.jpeg.jpg'
-                        .uri,
-              ),
-            ],
-            texts: [
-              TextData(
-                  locale: Locales.fr,
-                  kind: TextKind.lyrics,
-                  name: 'lyrics',
-                  uri: 'assets://lyrics/dans_nos_obscurites.txt'.uri),
-              TextData(
-                  locale: Locales.fr,
-                  kind: TextKind.phonetics,
-                  name: 'lyrics',
-                  uri: 'assets://lyrics/dans_nos_obscurites.phonetics'.uri),
-              TextData(
-                  locale: Locales.de,
-                  kind: TextKind.translation,
-                  name: 'translation',
-                  uri: 'assets://lyrics/dans_nos_obscurites.de.translation'.uri),
-            ],
-          ),
-        ]));
+  static Future<Duration> provideMp3Duration(
+      Uri uri, AudioTagger tagger) async {
+    final String filePath = uri.toFilePath();
+    final Map map = await tagger.readAudioFileAsMap(path: filePath) ?? {};
+    final length =
+        map.containsKey('length') == true ? map['length'] as int : 100;
+    return Duration(seconds: length);
+  }
 }

@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:audiotagger/audiotagger.dart';
 
 class AudioTagger {
+  AudioTagger._();
+  static final instance = AudioTagger._();
   final tagger = Audiotagger();
   final defaultResult = Future.value({'length':100, 'artist':'taize'});
   bool isMp3(String filePath) {

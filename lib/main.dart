@@ -6,22 +6,21 @@ import 'package:marquee/marquee.dart';
 import 'package:music_player/optionpage.dart';
 import 'package:music_player/player.dart';
 import 'package:music_player/playpausebutton.dart';
-import 'package:music_player/song_provider.dart';
 import 'package:music_player/tagger.dart';
+import 'package:music_player/taize_song_provider.dart';
 import 'package:music_player/types.dart';
 import 'playerwidget.dart';
 
 typedef BoolConsumer = void Function(bool value);
 typedef SetStateFunction = void Function(void Function() fn);
 void main() async {
-  final tagger = AudioTagger();
   runApp(FutureBuilder<Iterable<SongData>>(
-    future: NetworkSongProvider(tagger).songs,
+    future: taizeSongs,
     builder: (context, snapshot) {
       return snapshot.hasData ? MyApp(
         player: Player(),
         songs: snapshot.data! ,
-        tagger: tagger,
+        tagger: AudioTagger.instance,
       ) : CircularProgressIndicator();
     }
   ));
@@ -167,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     builder: (context) => PlayerWidget(
                           playing: playing!,
                           player: player,
-                          currentArtist: currentArtist!,
+                          currentArtist: currentArtist ?? '',
                           currentSong: currentSong!,
                           setPlaying: setPlaying,
                           tagger: tagger,

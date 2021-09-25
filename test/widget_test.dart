@@ -15,7 +15,7 @@ import 'package:music_player/tagger.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp(songs: const [],player: Player(), tagger: AudioTagger(),));
+    await tester.pumpWidget(MyApp(songs: const [],player: Player(), tagger: AudioTagger.instance,));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

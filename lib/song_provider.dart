@@ -41,7 +41,9 @@ class Locales {
   static const Locale de = Locale('de');
   static const Locale en = Locale('en');
   static const Locale fr = Locale('fr');
-  static const Locale und = Locale('und');
+  static const Locale la = Locale('la'); // latin
+  static const Locale pt = Locale('pt'); // portuguese
+  static const Locale und = Locale('und'); // undefined
 }
 
 class NetworkSongData extends SongData {
@@ -57,6 +59,9 @@ class NetworkSongData extends SongData {
     String? alto,
     String? tenor,
     String? bass,
+    String? firstVoice,
+    String? secondVoice,
+    String? thirdVoice,
     String? together,
     String? guitar,
     String? pronunciation,
@@ -110,6 +115,30 @@ class NetworkSongData extends SongData {
                 locale: Locales.und,
                 name: 'bass',
                 uri: bass.uri,
+              ),
+            if (firstVoice != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.firstVoice,
+                locale: Locales.und,
+                name: '1st voice',
+                uri: firstVoice.uri,
+              ),
+            if (secondVoice != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.secondVoice,
+                locale: Locales.und,
+                name: '2nd voice',
+                uri: secondVoice.uri,
+              ),
+            if (thirdVoice != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.thirdVoice,
+                locale: Locales.und,
+                name: '3rd voice',
+                uri: thirdVoice.uri,
               ),
             if (together != null)
               AudioData(

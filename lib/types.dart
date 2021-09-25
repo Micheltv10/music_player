@@ -41,10 +41,10 @@ class AudioData {
 class TextData {
   final TextKind kind;
   final String name;
-  final Uri uri;
+  final Future<String> text;
   final Locale locale;
 
-  TextData({required this.locale, required this.kind, required this.name, required this.uri});
+  TextData({required this.locale, required this.kind, required this.name, required this.text});
 }
 
 class ImageData {

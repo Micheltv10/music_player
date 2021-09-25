@@ -59,12 +59,12 @@ class NetworkSongData extends SongData {
     String? bass,
     String? together,
     String? guitar,
-    String? lyrics,
-    String? phonetics,
-    String? translation,
     String? pronunciation,
     String? notes,
     String? cover,
+    List<String>? lyrics,
+    List<String>? phonetics,
+    List<String>? translation,
   }) : super(
           index: index,
           title: title,
@@ -142,21 +142,21 @@ class NetworkSongData extends SongData {
               TextData(
                 kind: TextKind.lyrics,
                 name: 'lyrics',
-                uri: lyrics.uri,
+                text: Future.value(lyrics.join('\n')),
                 locale: locale,
               ),
             if (phonetics != null)
               TextData(
                 kind: TextKind.phonetics,
                 name: 'phonetics',
-                uri: phonetics.uri,
+                text: Future.value(phonetics.join('\n')),
                 locale: locale,
               ),
             if (translation != null)
               TextData(
                 kind: TextKind.translation,
                 name: 'translation',
-                uri: translation.uri,
+                text: Future.value(translation.join('\n')),
                 locale: Locales.de,
               )
           ],

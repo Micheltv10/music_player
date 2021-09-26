@@ -59,6 +59,8 @@ class NetworkSongData extends SongData {
     String? alto,
     String? tenor,
     String? bass,
+    String? melody,
+    String? inCanon,
     String? firstVoice,
     String? secondVoice,
     String? thirdVoice,
@@ -115,6 +117,22 @@ class NetworkSongData extends SongData {
                 locale: Locales.und,
                 name: 'bass',
                 uri: bass.uri,
+              ),
+            if (melody != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.melody,
+                locale: Locales.und,
+                name: 'melody',
+                uri: melody.uri,
+              ),
+            if (inCanon != null)
+              AudioData(
+                durationProvider: (audio) => provideMidiDuration(audio.uri),
+                kind: AudioKind.inCanon,
+                locale: Locales.und,
+                name: 'in canon',
+                uri: inCanon.uri,
               ),
             if (firstVoice != null)
               AudioData(

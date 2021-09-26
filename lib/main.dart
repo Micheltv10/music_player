@@ -374,7 +374,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           final Map? map =
                               await tagger.readTagsAsMap(path: filePath);
                           */
-                          await player.loadUri(widget.songs.elementAt(index).songUri);
+                          await player.load(widget.songs.elementAt(index).songUri);
                           player.play();
                           nextSongTimer?.stopTimer();
                           setState(() {
@@ -471,7 +471,7 @@ class NextSongTimer {
       if (queue.isNotEmpty) {
         String filePathQueue = queue[0].songUri.toFilePath();
         final Map? map = await tagger.readTagsAsMap(path: filePathQueue);
-        await player.load(filePathQueue);
+        await player.load(queue[0].songUri);
         await player.play();
         setState(() {
           currentSong = queue[0];
@@ -483,7 +483,7 @@ class NextSongTimer {
         SongData newSong = songs.elementAt(index);
         Uri uri = newSong.songUri;
         final Map? map = await tagger.readTagsAsMap(path: uri.toFilePath());
-        await player.loadUri(uri);
+        await player.load(uri);
         await player.play();
         setState(() {
           currentSong = newSong;
@@ -497,7 +497,7 @@ class NextSongTimer {
     if (queue.isNotEmpty) {
       String filePathQueue = queue[0].songUri.toFilePath();
       final Map? map = await tagger.readTagsAsMap(path: filePathQueue);
-      await player.load(filePathQueue);
+      await player.load(queue[0].songUri);
       await player.play();
       setState(() {
         currentSong = queue[0];
@@ -509,7 +509,7 @@ class NextSongTimer {
       SongData newSong = songs.elementAt(index);
       Uri uri = newSong.songUri;
       final Map? map = await tagger.readTagsAsMap(path: uri.toFilePath());
-      await player.loadUri(uri);
+      await player.load(uri);
       await player.play();
       setState(() {
         currentSong = newSong;

@@ -19,6 +19,8 @@ enum AudioKind {
   tenor,
   bass,
   together,  
+  melody,
+  inCanon,
 }
 
 enum TextKind {
@@ -62,7 +64,7 @@ class SongData {
   final List<AudioData> audios;
   final List<ImageData> images;
   final List<TextData> texts;
-  Uri get songUri => audios.singleWhere((audio) => audio.kind == AudioKind.song).uri;
+  Uri get songUri => audios.singleWhere((audio) => audio.kind == AudioKind.together).uri;
   Uri get coverUri => images.singleWhere((image) => image.kind == ImageKind.cover).uri;
   Future<Duration> get songDuration => audios.singleWhere((audio) => audio.kind == AudioKind.song).duration;
 

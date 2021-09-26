@@ -12,17 +12,25 @@ class MainActivity: FlutterActivity() {
   private val CHANNEL = "midi.partmaster.de/player"
   private var currentPlayer : MediaPlayer? = null;
   private var pendingPlayer : MediaPlayer? = null;
+  private var methodChannel : MethodChannel? = null;
 
   override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
-    MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
+    val _methodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL);
+    methodChannel = _methodChannel;
+    _methodChannel.setMethodCallHandler {
         call, result ->
         if (call.method == "load") {
             val uriString :String? = call.argument("uri");
             if(uriString != null) {
                 val uri = Uri.parse(uriString)
-                result.success("Player.load($uri)")
-                pendingPlayer = MediaPlayer.create(this, uri)
+                val _pendingPlayer = MediaPlayer.create(this, uri);
+                pendingPlayer = _pendingPlayer;
+                _pendingPlayer.setOnCompletionListener(
+                    MediaPlayer.OnCompletionListener {
+                        _methodChannel.invokeMethod("onCompleted", "")                                           }
+                );          
+                result.success("Player.load($uri)");
             }
             else {
                 result.error("UNAVAILABLE", "no uri.", null)

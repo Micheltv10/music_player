@@ -18,13 +18,25 @@ class Player {
   YoutubePlayerState youtubePlayerState = YoutubePlayerState.off;
   final YoutubePlayerController youtubeController;
   final Widget youtubeWidget;
+  final List<VoidCallback> callbacks;
 
-  static void onEnded(YoutubeMetaData metaData) {
+  static void onYoutubeCompleted(YoutubeMetaData metaData) {
     final duration = metaData.duration;
     final author = metaData.author;
     final title = metaData.title;
     final videoId = metaData.videoId;
-    print('onEnded duration=$duration, author=$author, title=$title, videoId=$videoId');
+    print(
+        'onYoutubeCompleted duration=$duration, author=$author, title=$title, videoId=$videoId');
+  }
+
+  void onCompleted() {
+    _onCompleted(callbacks);
+  }
+
+  static void _onCompleted(List<VoidCallback> callbacks) {
+    callbacks.forEach(
+      (onCompleted) => onCompleted(),
+    );
   }
 
   Player()
@@ -33,25 +45,44 @@ class Player {
             initialVideoId: 'aAkMkVFwAoo',
             flags: YoutubePlayerFlags(autoPlay: false),
           ),
+          [],
         );
-  Player._(YoutubePlayerController controller)
-      : youtubeController = controller,
+
+  Player._(YoutubePlayerController controller,
+      List<VoidCallback> callbacks)
+      : callbacks = callbacks,
+        youtubeController = controller,
         youtubeWidget = SizedBox(
-          child: YoutubePlayer(controller: controller, onEnded: onEnded,),
+          child: YoutubePlayer(
+            controller: controller,
+            onEnded: (metaData) {
+              print('YoutubePlayer.onEnded($metaData)');
+              onYoutubeCompleted(metaData);
+              _onCompleted(callbacks);
+            },
+          ),
           width: 1,
           height: 1,
-        );
-  static const midiPlayerChannel = MethodChannel('midi.partmaster.de/player');
+        ) {
+          midiPlayerChannel.setMethodCallHandler(midiPlayerHandler);
+        }
+  final midiPlayerChannel = MethodChannel('midi.partmaster.de/player');
+  Future<dynamic> midiPlayerHandler(MethodCall methodCall) async {
+    print('');
+    print('Player.midiPlayerHandler(${methodCall.method})');
+    print('');
+    switch (methodCall.method) {
+      case 'onCompleted':
+        onCompleted();
+        return null;
+      default:
+        throw MissingPluginException('notImplemented');
+    }
+  }
   bool midiLoaded = false;
 
-  Future<void> load(String filePath) {
-    final uri = File(filePath).absolute.uri;
-    print('load($filePath) => $uri');
-    return loadUri(uri);
-  }
-
-  Future<void> loadUri(Uri uri) {
-    print('loadUri($uri)');
+  Future<void> load(Uri uri) {
+    print('load($uri)');
     youtubePlayerState = YoutubePlayerState.off;
     if (pendingPlayer != null) {
       pendingPlayer?.dispose();
@@ -72,7 +103,8 @@ class Player {
       youtubeController.load(videoId);
       final duration = youtubeController.metadata.duration;
       youtubePlayerState = YoutubePlayerState.pending;
-      print('loadUri: YoutubePlayerState.uri videoId= $videoId loaded duration=$duration');
+      print(
+          'loadUri: YoutubePlayerState.uri videoId= $videoId loaded duration=$duration');
     }
     return Future.value(null);
   }

@@ -23,13 +23,13 @@ class _MainOptionMenuWidgetState extends State<MainOptionMenuWidget> {
           widget.player.youtubeWidget,
           TextButton(
             onPressed: () async{
-              widget.player.loadUri(Uri.parse('https://www.youtube.com/watch?v=aAkMkVFwAoo'));
+              widget.player.load(Uri.parse('https://www.youtube.com/watch?v=aAkMkVFwAoo'));
               widget.player.play();
             },
            child: const Text('Play Youtube Video'),),
            TextButton(
             onPressed: () async{
-              widget.player.loadUri(Uri.parse('https://www.youtube.com/watch?v=aAkMkVFwAoo'));
+              widget.player.load(Uri.parse('https://www.youtube.com/watch?v=aAkMkVFwAoo'));
               widget.player.play();
             },
            child: const Text('Play Youtube Video'),),

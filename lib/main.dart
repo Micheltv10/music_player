@@ -143,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
   }
-
+  
   smallPlayerWidget() {
     final size = MediaQuery.of(context).size;
 
@@ -211,14 +211,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
                         // Swiping in left direction.
                         if (details.delta.dx < 0) {
-                          await NextSongTimer(
-                            currentSong: currentSong,
-                            currentArtist: currentArtist,
-                            player: player,
-                            songs: widget.songs,
-                            setState: setState,
-                            tagger: tagger,
-                          ).skipSong();
+                          await NextSongTimer(currentSong: currentSong,currentArtist: currentArtist,player: player,songs: widget.songs,setState: setState,tagger: tagger,).skipSong();
+                          print('NextSongTimer.skipSong skipped Song');
+                          print("NextSongTimer currentsong = ${currentSong!.title}");
                         }
                       },
                       child: SizedBox(
@@ -271,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (context, snapshot) {
                         return PositionSliderWidget(
                             maxPosition:
-                                snapshot.hasData ? snapshot.data!.inMilliseconds.toDouble() : 200000,
+                                snapshot.hasData ? snapshot.data!.inSeconds : 20,
                             player: player);
                       }),
                 )
@@ -429,6 +424,7 @@ class _MyHomePageState extends State<MyHomePage> {
     int output = map?['length'];
     return output.toDouble();
   }
+  
 }
 
 class NextSongTimer {
@@ -494,31 +490,40 @@ class NextSongTimer {
   }
 
   Future<void> skipSong() async {
+    print('NextSongTimer.skipSong queue $queue');
     if (queue.isNotEmpty) {
+      print('NextSongTimer.skipSong queue not Empty');
       String filePathQueue = queue[0].songUri.toFilePath();
       final Map? map = await tagger.readTagsAsMap(path: filePathQueue);
       await player.load(queue[0].songUri);
       await player.play();
       setState(() {
         currentSong = queue[0];
+        print('currentSong: ${currentSong?.title}');
         currentArtist = map?["artist"];
       });
+      print("NextSongTimer.skipSong Queue = $queue");
       queue.removeAt(0);
     } else {
-      final index = Random().nextInt(songs.length);
-      SongData newSong = songs.elementAt(index);
+      print('NextSongTimer.skipSong queue is empty');
+      final index1 = Random().nextInt(songs.length);
+      print('NextSongTimer.skipSong index = $index1');
+      SongData newSong = songs.elementAt(index1);
+      print('NextSongTimer.skipSong newSong = ${newSong.title}');
       Uri uri = newSong.songUri;
-      final Map? map = await tagger.readTagsAsMap(path: uri.toFilePath());
-      await player.load(uri);
-      await player.play();
+      final Map? map = await tagger.readTagsAsMap(path: uri.toString());
       setState(() {
         currentSong = newSong;
+        print('currentSong: ${currentSong?.title}');
         currentArtist = map?["artist"];
       });
+      await player.load(uri);
+      await player.play();
     }
   }
 
   addToQueue(songName) {
     queue.add(songName);
+    print("queue = ${queue.asMap()}");
   }
 }

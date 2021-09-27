@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:ocarina/ocarina.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -19,6 +20,7 @@ class Player {
   final YoutubePlayerController youtubeController;
   final Widget youtubeWidget;
   final List<VoidCallback> callbacks;
+ 
 
   static void onYoutubeCompleted(YoutubeMetaData metaData) {
     final duration = metaData.duration;
@@ -81,7 +83,8 @@ class Player {
   }
   bool midiLoaded = false;
 
-  Future<void> load(Uri uri) {
+  Future<void> load(Uri uri) async {
+    
     print('load($uri)');
     youtubePlayerState = YoutubePlayerState.off;
     if (pendingPlayer != null) {
@@ -152,7 +155,6 @@ class Player {
   Future<int> _midiPosition() async {
     try {
       final int result = await midiPlayerChannel.invokeMethod('position');
-      print("midiPlayerChannel.position returns: '$result'.");
       return result;
     } on PlatformException catch (e) {
       print("midiPlayerChannel.position failed: '${e.message}'.");

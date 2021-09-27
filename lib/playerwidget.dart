@@ -35,7 +35,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   _PlayerWidgetState(this.playing);
 
   songNameLength(songName) {
-    if (songName.toString().length > 15) {
+    if (songName.toString().length > 33) {
       return Marquee(
         text: songName,
         style: const TextStyle(
@@ -84,11 +84,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     }
   }
 
-  Future<double> getSongDuration() async {
-    final filePath = widget.currentSong.songUri.toFilePath();
-    Map? map = await widget.tagger.readAudioFileAsMap(path: filePath);
-    int length = map!['length'];
-    return length.toDouble();
+  Future<int> getSongDuration() async {
+    Duration length = await widget.currentSong.songDuration;
+    return length.inSeconds;
   }
 
   @override
@@ -100,9 +98,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            const Spacer(
-              flex: 2,
-            ),
             CarouselSlider(
               options: CarouselOptions(height: 400.0, viewportFraction: 0.95),
               items: [1, 2, 3, 4].map((i) {
@@ -118,9 +113,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                   },
                 );
               }).toList(),
-            ),
-            const Spacer(
-              flex: 2,
             ),
             Column(
               children: [
@@ -149,13 +141,12 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: FutureBuilder<double>(
+                          child: FutureBuilder<int>(
                               future: getSongDuration(),
                               builder: (context, snapshot) {
                                 return PositionSliderWidget(
                                   player: widget.player,
-                                  maxPosition:
-                                      snapshot.hasData ? snapshot.data! : 10,
+                                  maxPosition: snapshot.hasData? snapshot.data! : 10,
                                 );
                               }),
                         ),
@@ -184,13 +175,13 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   Future<Widget> sliderCarousel(i) async {
     if (i == 1) {
-      return await getArtwork();
+      return await Image.network(widget.currentSong.coverUri.toString());
     } if (i == 2) {
       return KaraokeWidget(song: widget.currentSong, player: widget.player);
     } if (i == 3) {
       return SelectAudioKindWidget(player: widget.player, currentSong: widget.currentSong);
     }else {
-      return const Text('How?');
+      return ShowNotesWidget(songData: widget.currentSong,);
     }
   }
 
@@ -209,7 +200,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 }
 
 class PositionSliderWidget extends StatefulWidget {
-  final double maxPosition;
+  final int maxPosition;
   final Player player;
   const PositionSliderWidget(
       {Key? key, required this.maxPosition, required this.player})
@@ -262,7 +253,7 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
         Slider(
           value: (position / 1000),
           min: 0,
-          max: widget.maxPosition,
+          max: widget.maxPosition.toDouble(),
           onChanged: (double newValue) {
             widget.player.seek(Duration(seconds: newValue.toInt()));
           },
@@ -293,6 +284,11 @@ class _SelectAudioKindWidgetState extends State<SelectAudioKindWidget> {
     final size = MediaQuery.of(context).size;
     return Column(
       children: [
+        SizedBox(
+          width: 1,
+          height: 1,
+          child: widget.player.youtubeWidget,
+        ),
         SizedBox(
           width: size.width,
           height: size.height * 0.39,
@@ -367,10 +363,18 @@ class ShowNotesWidget extends StatefulWidget {
 }
 
 class _ShowNotesWidgetState extends State<ShowNotesWidget> {
+  getNotesImage(){
+    final url = (widget.songData.images.firstWhere((element) => element.kind == ImageKind.notes)).uri.toString();
+    print('ShowNotesWidgetState.notesImage url = $url');
+    return url;
+  }
+    
+  
   @override
   Widget build(BuildContext context) {
+    print('ShowNotesWidgetState build');
     return SizedBox(
-      child: Image(image: NetworkImage((widget.songData.images.firstWhere((element) => element.kind == ImageKind.notes)).uri.toFilePath()),),
+      child: Image(image: NetworkImage(getNotesImage()),),
     );
   }
 }

@@ -369,8 +369,16 @@ class _MyHomePageState extends State<MyHomePage> {
                           final Map? map =
                               await tagger.readTagsAsMap(path: filePath);
                           */
+                          final uri = widget.songs.elementAt(index).songUri;
+                          /*
+                          if(uri.toString().endsWith('.mid')) {
+                            print('onTap: downloading $uri ...');
+                            final file = await DefaultCacheManager().getSingleFile(uri.toString());
+                            print('onTap: downloaded to ${file.absolute}');
+                          }
+                          */
                           final duration = await widget.songs.elementAt(index).songDuration;
-                          await player.load(widget.songs.elementAt(index).songUri);
+                          await player.load(uri);
                           player.play();
                           nextSongTimer?.stopTimer();
                           setState(() {

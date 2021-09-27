@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:ocarina/ocarina.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+import 'cache_manager.dart';
+
 enum YoutubePlayerState {
   off,
   pending,
@@ -84,20 +86,20 @@ class Player {
   Future<void> load(Uri uri) async {
     
     print('load($uri)');
+    Uri cachedUri = await Cache().get(uri);
     youtubePlayerState = YoutubePlayerState.off;
     if (pendingPlayer != null) {
       pendingPlayer?.dispose();
       pendingPlayer = null;
     }
-    if (uri.path.endsWith('.mid') || uri.path.endsWith('.midi')) {
+    if (cachedUri.path.endsWith('.mid') || cachedUri.path.endsWith('.midi')) {
       return _midiLoad(uri);
     }
-    if (uri.isScheme("file")) {
+    if (cachedUri.isScheme("file")) {
       pendingPlayer = OcarinaPlayer(filePath: uri.toFilePath());
       print('player${pendingPlayer!.hashCode}.load(${uri.toFilePath()})}');
       return pendingPlayer?.load() ?? Future.value(null);
     }
-
     final videoId = YoutubePlayer.convertUrlToId(uri.toString());
     if (videoId != null) {
       print('loadUri: YoutubePlayerState.uri videoId= $videoId loading...');
@@ -111,10 +113,12 @@ class Player {
   }
 
   Future<void> _midiLoad(Uri uri) async {
+    var uriString = uri.toString();
+    print("use uri $uriString");
     try {
       
       final String result =
-          await midiPlayerChannel.invokeMethod('load', {'uri': uri.toString()});
+          await midiPlayerChannel.invokeMethod('load', {'uri': uriString});
       midiLoaded = true;
       print("midiPlayerChannel.load returns: '$result'.");
     } on PlatformException catch (e) {

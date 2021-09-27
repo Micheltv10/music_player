@@ -31,14 +31,14 @@ dependencies:
     sdk: flutter
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  path_provider: ^2.0.4
-  ocarina: ^0.1.2
-  carousel_slider: ^4.0.0
-  permission_handler: ^8.1.6
   audiotagger: ^2.2.1
+  carousel_slider: ^4.0.0
+  cupertino_icons: ^1.0.2
   flutter_slidable: ^0.6.0
   marquee: ^2.2.0
+  ocarina: ^0.1.2
+  path_provider: ^2.0.4
+  permission_handler: ^8.1.6
   youtube_player_flutter: ^8.0.0
 
 

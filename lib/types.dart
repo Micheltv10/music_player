@@ -66,7 +66,7 @@ class SongData {
   final List<TextData> texts;
   Uri get songUri => audios.singleWhere((audio) => audio.kind == AudioKind.together).uri;
   Uri get coverUri => images.singleWhere((image) => image.kind == ImageKind.cover).uri;
-  Future<Duration> get songDuration => audios.singleWhere((audio) => audio.kind == AudioKind.song).duration;
+  Future<Duration> get songDuration => audios.singleWhere((audio) => audio.kind == AudioKind.together).duration;
 
   SongData({required this.index, required this.subtitle, required this.audios, required this.images, required this.texts, required this.title});
 }

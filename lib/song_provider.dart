@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:music_player/tagger.dart';
 import 'package:music_player/types.dart';
 
+import 'cache_manager.dart';
 import 'midi/midi_events.dart';
 import 'midi/midi_file.dart';
 import 'midi/midi_parser.dart';
@@ -230,21 +231,25 @@ class NetworkSongData extends SongData {
     }, onDone: () => completer.complete(contents));
     return completer.future;
   }
-  static Future<dynamic> download(Uri uri)async{
+  static Future<dynamic> download(Uri uri) async{
    final request = await HttpClient().getUrl(uri);
     final response = await request.close();
     final content = await readResponse(response);
-    print("respone = ${content.length}");
+    print("download($uri) = ${content.length}");
     return content;
   }
   
   
   static Future<Duration> provideMidiDuration(Uri uri) async {
-    final content = await download(uri);
-    final parser = MidiParser();
-    final midiFile = parser.parseMidiFromBuffer(content);
-    print("duration = ${midiFile.duration.inSeconds}");
-    return Future.value(midiFile.duration);
+    final cachedUri = await Cache().get(uri);
+    final file = File(cachedUri.toFilePath());
+    final bytes = await file.readAsBytes();
+    //final content = bytes.map((byte)=>byte.toInt()).toList();
+    //final parser = MidiParser();
+    //final midiFile = parser.parseMidiFromBuffer(content);
+    //print("duration = ${midiFile.duration.inSeconds}");
+    //return Future.value(midiFile.duration);
+    return Future.value(Duration(seconds: bytes.length)); 
   }
 
   static Future<Duration> provideYoutubeDuration(Uri uri) {

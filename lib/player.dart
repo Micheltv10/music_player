@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:ocarina/ocarina.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -114,6 +113,7 @@ class Player {
 
   Future<void> _midiLoad(Uri uri) async {
     try {
+      
       final String result =
           await midiPlayerChannel.invokeMethod('load', {'uri': uri.toString()});
       midiLoaded = true;

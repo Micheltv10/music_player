@@ -308,10 +308,10 @@ class _SelectAudioKindWidgetState extends State<SelectAudioKindWidget> {
                       TextButton(onPressed: () async{
                         if (audioData.kind == "song") {
                           await widget.player.load(audioData.uri);
-                          widget.player.play();
+                          await widget.player.play();
                         } else {
                           await widget.player.load(audioData.uri);
-                          widget.player.play();
+                          await widget.player.play();
                         }
                       }, 
                       child: Text("Play"),)

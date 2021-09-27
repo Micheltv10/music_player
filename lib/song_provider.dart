@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:music_player/tagger.dart';
 import 'package:music_player/types.dart';
 
@@ -231,13 +230,20 @@ class NetworkSongData extends SongData {
     }, onDone: () => completer.complete(contents));
     return completer.future;
   }
-
-  static Future<Duration> provideMidiDuration(Uri uri) async {
-    final request = await HttpClient().getUrl(uri);
+  static Future<dynamic> download(Uri uri)async{
+   final request = await HttpClient().getUrl(uri);
     final response = await request.close();
-    final parser = MidiParser();
     final content = await readResponse(response);
+    print("respone = ${content.length}");
+    return content;
+  }
+  
+  
+  static Future<Duration> provideMidiDuration(Uri uri) async {
+    final content = await download(uri);
+    final parser = MidiParser();
     final midiFile = parser.parseMidiFromBuffer(content);
+    print("duration = ${midiFile.duration.inSeconds}");
     return Future.value(midiFile.duration);
   }
 

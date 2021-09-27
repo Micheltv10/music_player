@@ -18,8 +18,8 @@ final taizeSongs = SongProvider(
         alto: 'https://www.taize.fr/IMG/mid/danobs_a.mid',
         tenor: 'https://www.taize.fr/IMG/mid/danobs_t.mid',
         bass: 'https://www.taize.fr/IMG/mid/danobs_b.mid',
-        together: 'http://54.36.216.225/IMG/mid/danobs_e.mid',
-        guitar: 'http://54.36.216.225/IMG/mid/danobs_g.mid',
+        together: 'https://www.taize.fr/IMG/mid/danobs_e.mid',
+        guitar: 'https://www.taize.fr/IMG/mid/danobs_g.mid',
         pronunciation:
             'https://taize.ulinater.de/french/dans_nos_obscurites.mp3',
         notes: 'https://via.placeholder.com/1000x1000?text=No+Notes+Found',
@@ -100,7 +100,6 @@ final taizeSongs = SongProvider(
         guitar: 'https://www.taize.fr/IMG/mid/bleihi_g.mid',
         pronunciation: 'https://taize.ulinater.de/german/bleibet_hier.mp3',
         notes: 'https://via.placeholder.com/1000x1000?text=No+Notes+Found',
-
         // notes: 'https://www.taize.fr/IMG/gif/bleibet_hier.gif',
         cover:
             'https://img.discogs.com/78t3rAXrRwGdbCJQlw75y1UdLfs=/fit-in/600x594/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-13293107-1551538825-2290.jpeg.jpg',

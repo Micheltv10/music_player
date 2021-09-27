@@ -369,6 +369,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           final Map? map =
                               await tagger.readTagsAsMap(path: filePath);
                           */
+                          final duration = await widget.songs.elementAt(index).songDuration;
                           await player.load(widget.songs.elementAt(index).songUri);
                           player.play();
                           nextSongTimer?.stopTimer();
@@ -385,6 +386,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           });
                           nextSongTimer
                               ?.startTimer(const Duration(milliseconds: 500));
+                          print("");
+                          
+                          print("MyHomePageState Song Duration = $duration");
                         },
                       ),
                     ),

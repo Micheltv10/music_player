@@ -20,7 +20,7 @@ void main() async {
       builder: (context, snapshot) {
         return snapshot.hasData
             ? MyApp(
-                player: Player(),
+                player: CompoundPlayer(),
                 songs: snapshot.data!,
                 tagger: AudioTagger.instance,
               )
@@ -115,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
     nextSongTimer = NextSongTimer(
         currentSong: null,
         currentArtist: null,
-        player: Player(),
+        player: CompoundPlayer(),
         songs: widget.songs,
         setState: setState,
         tagger: tagger);
@@ -169,6 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final size = MediaQuery.of(context).size;
 
     if (player.isLoaded()) {
+      print('\nplayer.isLoaded()==true\n');
       return SizedBox(
         width: double.infinity,
         height: 91,
@@ -204,7 +205,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 50,
                         width: 50,
                         child: Container(
-                          child:
+                          child: currentSong == null ? null: 
                               Image.network(currentSong!.coverUri.toString()),
                           /*
                           child: FutureBuilder<Widget>(
@@ -255,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           children: [
                             SizedBox(
                               height: 25,
-                              child: songNameLength(currentSong!.title),
+                              child: songNameLength(currentSong?.title ?? ''),
                             ),
                             SizedBox(
                               height: 22,
@@ -269,7 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     Center(
                       child: PlayPauseButtonWidget(
                         player: player,
-                        playing: playing!,
+                        playing: playing ?? false,
                         size: 32,
                         setPlaying: setPlaying,
                       ),
@@ -290,7 +291,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         const RoundSliderOverlayShape(overlayRadius: 8.0),
                   ),
                   child: FutureBuilder<Duration>(
-                      future: currentSong!.songDuration,
+                      future: currentSong?.songDuration ?? Future.value(Duration.zero),
                       // getSongDuration(currentSong!.songUri.toFilePath()),
                       builder: (context, snapshot) {
                         return PositionSliderWidget(
@@ -449,7 +450,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      bottomNavigationBar: widget.player.youtubeWidget,
+      bottomNavigationBar: widget.player.widget,
     );
   }
 

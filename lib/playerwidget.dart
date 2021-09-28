@@ -462,7 +462,7 @@ class _SelectAudioKindWidgetState extends State<SelectAudioKindWidget> {
         SizedBox(
           width: 1,
           height: 1,
-          child: widget.player.youtubeWidget,
+          child: widget.player.widget,
         ),
         SizedBox(
           width: size.width,

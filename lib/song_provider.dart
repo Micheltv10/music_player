@@ -8,7 +8,6 @@ import 'package:music_player/types.dart';
 import 'cache_manager.dart';
 import 'midi/midi_events.dart';
 import 'midi/midi_file.dart';
-import 'midi/midi_parser.dart';
 
 extension StringUriExtension on String {
   Uri get uri => Uri.parse(this);

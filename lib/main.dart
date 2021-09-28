@@ -9,25 +9,27 @@ import 'package:music_player/playpausebutton.dart';
 import 'package:music_player/tagger.dart';
 import 'package:music_player/taize_song_provider.dart';
 import 'package:music_player/types.dart';
+import 'config.dart';
 import 'playerwidget.dart';
 
 typedef BoolConsumer = void Function(bool value);
 typedef SetStateFunction = void Function(void Function() fn);
 void main() async {
   runApp(FutureBuilder<Iterable<SongData>>(
-    future: taizeSongs,
-    builder: (context, snapshot) {
-      return snapshot.hasData ? MyApp(
-        player: Player(),
-        songs: snapshot.data! ,
-        tagger: AudioTagger.instance,
-      ) : CircularProgressIndicator();
-    }
-  ));
+      future: taizeSongs,
+      builder: (context, snapshot) {
+        return snapshot.hasData
+            ? MyApp(
+                player: Player(),
+                songs: snapshot.data!,
+                tagger: AudioTagger.instance,
+              )
+            : CircularProgressIndicator();
+      }));
 }
 
 // ignore: must_be_immutable
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   Iterable<SongData> songs;
   final Player player;
   final AudioTagger tagger;
@@ -39,19 +41,35 @@ class MyApp extends StatelessWidget {
       : super(key: key);
 
   // This widget is the root of your application.
+
   @override
-  Widget build(BuildContext context) => MaterialApp(
-        title: 'Music Player',
-        theme: ThemeData(
-          primarySwatch: Colors.deepPurple,
-        ),
-        home: MyHomePage(
-          title: 'Home',
-          songs: songs,
-          player: player,
-          tagger: tagger,
-        ),
-      );
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  initState() {
+    super.initState();
+    currentTheme.addListener(() {
+      setState(() {});
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Music Player',
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: currentTheme.currentTheme(),
+      debugShowCheckedModeBanner: false,
+      home: MyHomePage(
+        title: 'Home',
+        songs: widget.songs,
+        player: widget.player,
+        tagger: widget.tagger,
+      ),
+    );
+  }
 }
 
 // ignore: must_be_immutable
@@ -91,6 +109,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   initState() {
     super.initState();
+    currentTheme.addListener(() {
+      setState(() {});
+    });
     nextSongTimer = NextSongTimer(
         currentSong: null,
         currentArtist: null,
@@ -143,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
   }
-  
+
   smallPlayerWidget() {
     final size = MediaQuery.of(context).size;
 
@@ -156,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
               borderRadius: const BorderRadius.all(
                 Radius.circular(20),
               ),
-              color: Colors.deepPurple[300]),
+              color: currentTheme.currentTheme() == ThemeMode.dark ? Colors.black : Colors.grey[300],),
           child: GestureDetector(
             onTap: () {
               nextSongTimer?.stopTimer();
@@ -183,7 +204,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 50,
                         width: 50,
                         child: Container(
-                          child: Image.network(currentSong!.coverUri.toString()),
+                          child:
+                              Image.network(currentSong!.coverUri.toString()),
                           /*
                           child: FutureBuilder<Widget>(
                             future:
@@ -205,15 +227,23 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                     GestureDetector(
-                      onPanUpdate: (details) async{
+                      onPanUpdate: (details) async {
                         // Swiping in right direction.
                         if (details.delta.dx > 0) {}
 
                         // Swiping in left direction.
                         if (details.delta.dx < 0) {
-                          await NextSongTimer(currentSong: currentSong,currentArtist: currentArtist,player: player,songs: widget.songs,setState: setState,tagger: tagger,).skipSong();
+                          await NextSongTimer(
+                            currentSong: currentSong,
+                            currentArtist: currentArtist,
+                            player: player,
+                            songs: widget.songs,
+                            setState: setState,
+                            tagger: tagger,
+                          ).skipSong();
                           print('NextSongTimer.skipSong skipped Song');
-                          print("NextSongTimer currentsong = ${currentSong!.title}");
+                          print(
+                              "NextSongTimer currentsong = ${currentSong!.title}");
                         }
                       },
                       child: SizedBox(
@@ -260,13 +290,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         const RoundSliderOverlayShape(overlayRadius: 8.0),
                   ),
                   child: FutureBuilder<Duration>(
-                      future:
-                          currentSong!.songDuration,
-                          // getSongDuration(currentSong!.songUri.toFilePath()),
+                      future: currentSong!.songDuration,
+                      // getSongDuration(currentSong!.songUri.toFilePath()),
                       builder: (context, snapshot) {
                         return PositionSliderWidget(
-                            maxPosition:
-                                snapshot.hasData ? snapshot.data!.inSeconds : 20,
+                            maxPosition: snapshot.hasData
+                                ? snapshot.data!.inSeconds
+                                : 20,
                             player: player);
                       }),
                 )
@@ -333,6 +363,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         closeOnTap: false,
                         onTap: () async {
                           nextSongTimer?.addToQueue(widget.songs.elementAt(index));
+                          
                         },
                       )
                     ],
@@ -346,7 +377,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         title: Text(widget.songs.elementAt(index).title),
                         leading: CircleAvatar(
                           child: Center(
-                            child: Image.network(widget.songs.elementAt(index).coverUri.toString()),
+                            child: Image.network(widget.songs
+                                .elementAt(index)
+                                .coverUri
+                                .toString()),
                             /*
                             FutureBuilder<Widget>(
                               future: getArtwork(widget.songs.elementAt(index).songUri.toFilePath()),
@@ -377,7 +411,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             print('onTap: downloaded to ${file.absolute}');
                           }
                           */
-                          final duration = await widget.songs.elementAt(index).songDuration;
+                          final duration =
+                              await widget.songs.elementAt(index).songDuration;
                           await player.load(uri);
                           player.play();
                           nextSongTimer?.stopTimer();
@@ -395,7 +430,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           nextSongTimer
                               ?.startTimer(const Duration(milliseconds: 500));
                           print("");
-                          
+
                           print("MyHomePageState Song Duration = $duration");
                         },
                       ),
@@ -436,7 +471,6 @@ class _MyHomePageState extends State<MyHomePage> {
     int output = map?['length'];
     return output.toDouble();
   }
-  
 }
 
 class NextSongTimer {

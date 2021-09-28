@@ -16,15 +16,15 @@ class PlayerWidget extends StatefulWidget {
   final String currentArtist;
   final BoolConsumer setPlaying;
   final AudioTagger tagger;
-  const PlayerWidget(
-      {Key? key,
-      required this.playing,
-      required this.currentArtist,
-      required this.currentSong,
-      required this.player,
-      required this.setPlaying,
-      required this.tagger,})
-      : super(key: key);
+  const PlayerWidget({
+    Key? key,
+    required this.playing,
+    required this.currentArtist,
+    required this.currentSong,
+    required this.player,
+    required this.setPlaying,
+    required this.tagger,
+  }) : super(key: key);
 
   @override
   _PlayerWidgetState createState() => _PlayerWidgetState(playing);
@@ -141,14 +141,28 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: FutureBuilder<int>(
-                              future: getSongDuration(),
-                              builder: (context, snapshot) {
-                                return PositionSliderWidget(
-                                  player: widget.player,
-                                  maxPosition: snapshot.hasData? snapshot.data! : 10,
-                                );
-                              }),
+                          child: SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              activeTrackColor: Colors.deepPurple,
+                              inactiveTrackColor: Colors.deepPurpleAccent,
+                              trackShape: const RoundedRectSliderTrackShape(),
+                              trackHeight: 5.0,
+                              thumbColor: Colors.purple,
+                              thumbShape: const RoundSliderThumbShape(
+                                  enabledThumbRadius: 0),
+                              overlayShape: const RoundSliderOverlayShape(
+                                  overlayRadius: 8.0),
+                            ),
+                            child: FutureBuilder<int>(
+                                future: getSongDuration(),
+                                builder: (context, snapshot) {
+                                  return PositionSliderWidget(
+                                    player: widget.player,
+                                    maxPosition:
+                                        snapshot.hasData ? snapshot.data! : 10,
+                                  );
+                                }),
+                          ),
                         ),
                       ],
                     ),
@@ -176,12 +190,17 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   Future<Widget> sliderCarousel(i) async {
     if (i == 1) {
       return await Image.network(widget.currentSong.coverUri.toString());
-    } if (i == 2) {
+    }
+    if (i == 2) {
       return KaraokeWidget(song: widget.currentSong, player: widget.player);
-    } if (i == 3) {
-      return SelectAudioKindWidget(player: widget.player, currentSong: widget.currentSong);
-    }else {
-      return ShowNotesWidget(songData: widget.currentSong,);
+    }
+    if (i == 3) {
+      return SelectAudioKindWidget(
+          player: widget.player, currentSong: widget.currentSong);
+    } else {
+      return ShowNotesWidget(
+        songData: widget.currentSong,
+      );
     }
   }
 
@@ -221,12 +240,12 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
 
   onTimer(Timer timer) async {
     if (widget.player.isLoaded()) {
-    var newPosition = await widget.player.position();
-    if (!disposed) {
-      setState(() {
-        position = newPosition;
-      });
-    }
+      var newPosition = await widget.player.position();
+      if (!disposed) {
+        setState(() {
+          position = newPosition;
+        });
+      }
     }
   }
 
@@ -242,6 +261,7 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
     super.initState();
     startTimer();
   }
+
   format(Duration d) => d.toString().split('.').first.padLeft(8, "0");
   @override
   Widget build(BuildContext context) {
@@ -269,10 +289,13 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
     );
   }
 }
+
 class SelectAudioKindWidget extends StatefulWidget {
   final Player player;
   final SongData currentSong;
-  const SelectAudioKindWidget({ Key? key, required this.player, required this.currentSong }) : super(key: key);
+  const SelectAudioKindWidget(
+      {Key? key, required this.player, required this.currentSong})
+      : super(key: key);
 
   @override
   _SelectAudioKindWidgetState createState() => _SelectAudioKindWidgetState();
@@ -293,88 +316,97 @@ class _SelectAudioKindWidgetState extends State<SelectAudioKindWidget> {
           width: size.width,
           height: size.height * 0.39,
           child: ListView.builder(
-            itemCount: widget.currentSong.audios.length,
-            itemBuilder: (context, index){
-              final size = MediaQuery.of(context).size;
-              AudioData audioData = widget.currentSong.audios[index];
-              return Center(
-                child: SizedBox(
-                  height: 90,
-                  width: size.width * 0.9,
-                  child: Column(
-                    children: [
-                      Text("Name = ${audioData.name.toString()}"),
-                      audioDataKindIcon(audioData),
-                      TextButton(onPressed: () async{
-                        if (audioData.kind == "song") {
-                          await widget.player.load(audioData.uri);
-                          await widget.player.play();
-                        } else {
-                          await widget.player.load(audioData.uri);
-                          await widget.player.play();
-                        }
-                      }, 
-                      child: Text("Play"),)
-                    ],
+              itemCount: widget.currentSong.audios.length,
+              itemBuilder: (context, index) {
+                final size = MediaQuery.of(context).size;
+                AudioData audioData = widget.currentSong.audios[index];
+                return Center(
+                  child: SizedBox(
+                    height: 90,
+                    width: size.width * 0.9,
+                    child: Column(
+                      children: [
+                        Text("Name = ${audioData.name.toString()}"),
+                        audioDataKindIcon(audioData),
+                        TextButton(
+                          onPressed: () async {
+                            if (audioData.kind == "song") {
+                              await widget.player.load(audioData.uri);
+                              await widget.player.play();
+                            } else {
+                              await widget.player.load(audioData.uri);
+                              await widget.player.play();
+                            }
+                          },
+                          child: Text("Play"),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              );
-          }),
+                );
+              }),
         ),
-        TextButton(onPressed: () {
-          widget.player.dispose();
-        }, child: Text('Dispose'))
+        TextButton(
+            onPressed: () {
+              widget.player.dispose();
+            },
+            child: Text('Dispose'))
       ],
     );
   }
 }
 
 Widget audioDataKindIcon(AudioData audioData) {
-  if(audioData.kind == AudioKind.firstVoice){
+  if (audioData.kind == AudioKind.firstVoice) {
     return Icon(Icons.person);
   }
-  if(audioData.kind == AudioKind.secondVoice){
+  if (audioData.kind == AudioKind.secondVoice) {
     return Icon(Icons.people);
   }
-  if(audioData.kind == AudioKind.thirdVoice){
+  if (audioData.kind == AudioKind.thirdVoice) {
     return Icon(Icons.person);
   }
-  if(audioData.kind == AudioKind.guitar){
+  if (audioData.kind == AudioKind.guitar) {
     return Icon(Icons.groups);
   }
-  if(audioData.kind == AudioKind.song){
+  if (audioData.kind == AudioKind.song) {
     return Icon(Icons.music_note);
   }
-  if(audioData.kind == AudioKind.pronunciation){
+  if (audioData.kind == AudioKind.pronunciation) {
     return Icon(Icons.record_voice_over);
-  }
-  else {
+  } else {
     return Text('How?');
   }
-  
 }
 
 class ShowNotesWidget extends StatefulWidget {
   final SongData songData;
-  const ShowNotesWidget({ Key? key, required this.songData,}) : super(key: key);
+  const ShowNotesWidget({
+    Key? key,
+    required this.songData,
+  }) : super(key: key);
 
   @override
   _ShowNotesWidgetState createState() => _ShowNotesWidgetState();
 }
 
 class _ShowNotesWidgetState extends State<ShowNotesWidget> {
-  getNotesImage(){
-    final url = (widget.songData.images.firstWhere((element) => element.kind == ImageKind.notes)).uri.toString();
+  getNotesImage() {
+    final url = (widget.songData.images
+            .firstWhere((element) => element.kind == ImageKind.notes))
+        .uri
+        .toString();
     print('ShowNotesWidgetState.notesImage url = $url');
     return url;
   }
-    
-  
+
   @override
   Widget build(BuildContext context) {
     print('ShowNotesWidgetState build');
     return SizedBox(
-      child: Image(image: NetworkImage(getNotesImage()),),
+      child: Image(
+        image: NetworkImage(getNotesImage()),
+      ),
     );
   }
 }

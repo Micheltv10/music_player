@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_player/config.dart';
 import 'package:music_player/main.dart';
 import 'package:music_player/player.dart';
 
@@ -37,6 +38,7 @@ class _PlayPauseButtonWidgetState extends State<PlayPauseButtonWidget> {
               playing = false;
             });
         },
+        color: currentTheme.currentTheme() == ThemeMode.dark ? Colors.white : Colors.black,
       );
     } else {
       return IconButton(

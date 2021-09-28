@@ -189,21 +189,21 @@ class NetworkSongData extends SongData {
               TextData(
                 kind: TextKind.lyrics,
                 name: 'lyrics',
-                text: Future.value(lyrics.join('\n')),
+                text: Future.value(lyrics),
                 locale: locale,
               ),
             if (phonetics != null)
               TextData(
                 kind: TextKind.phonetics,
                 name: 'phonetics',
-                text: Future.value(phonetics.join('\n')),
+                text: Future.value(phonetics),
                 locale: locale,
               ),
             if (translation != null)
               TextData(
                 kind: TextKind.translation,
                 name: 'translation',
-                text: Future.value(translation.join('\n')),
+                text: Future.value(translation),
                 locale: Locales.de,
               )
           ],

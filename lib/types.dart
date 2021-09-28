@@ -43,7 +43,7 @@ class AudioData {
 class TextData {
   final TextKind kind;
   final String name;
-  final Future<String> text;
+  final Future<List<String>> text;
   final Locale locale;
 
   TextData({required this.locale, required this.kind, required this.name, required this.text});

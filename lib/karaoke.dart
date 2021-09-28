@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -63,6 +64,7 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
     List<String> lines = List.empty();
     lyrics = List.empty(growable: true);
     await getFileLines().then((result) => lines = result);
+    print("lines gotten = $lines");
     for (int i = 0; i < lines.length; i++) {
       var line = lines[i];
       var startTime = Lyric.parse(line).startTime;
@@ -78,7 +80,12 @@ class _KaraokeWidgetState extends State<KaraokeWidget> {
     if (await file.exists()) {
       return await file.readAsLines();
     } else {
-      return ['error'];
+      if ((widget.song.texts.firstWhere((element) => element.kind == TextKind.lyrics)) != 0) {
+        print("Ja");
+        List<String> lines = await widget.song.texts.firstWhere((element) => element.kind == TextKind.lyrics).text;
+        return lines;
+      }
+      return ["error"];
     }
   }
 

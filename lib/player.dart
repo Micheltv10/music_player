@@ -96,8 +96,10 @@ class Player {
       return _midiLoad(uri);
     }
     if (cachedUri.isScheme("file")) {
-      pendingPlayer = OcarinaPlayer(filePath: uri.toFilePath());
-      print('player${pendingPlayer!.hashCode}.load(${uri.toFilePath()})}');
+      final filePath = Uri.decodeFull(cachedUri.toString());
+      print(filePath);
+      pendingPlayer = OcarinaPlayer(filePath: filePath);
+      print('player${pendingPlayer!.hashCode}.load(${filePath})}');
       return pendingPlayer?.load() ?? Future.value(null);
     }
     final videoId = YoutubePlayer.convertUrlToId(uri.toString());

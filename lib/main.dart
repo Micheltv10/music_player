@@ -233,7 +233,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                         // Swiping in left direction.
                         if (details.delta.dx < 0) {
-                          await NextSongTimer(
+                          /*await NextSongTimer(
                             currentSong: currentSong,
                             currentArtist: currentArtist,
                             player: player,
@@ -243,7 +243,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ).skipSong();
                           print('NextSongTimer.skipSong skipped Song');
                           print(
-                              "NextSongTimer currentsong = ${currentSong!.title}");
+                              "NextSongTimer currentsong = ${currentSong!.title}");*/
                         }
                       },
                       child: SizedBox(

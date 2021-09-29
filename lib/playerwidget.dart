@@ -32,6 +32,10 @@ class PlayerWidget extends StatefulWidget {
 
 class _PlayerWidgetState extends State<PlayerWidget> {
   bool playing;
+  String dropdownValue = 'One';
+  ImageKind imageValue = ImageKind.cover;
+  AudioKind audioValue = AudioKind.song;
+  TextKind textValue = TextKind.lyrics;
   _PlayerWidgetState(this.playing);
 
   songNameLength(songName) {
@@ -92,111 +96,259 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.currentSong.title),
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            CarouselSlider(
-              options: CarouselOptions(height: 400.0, viewportFraction: 0.95),
-              items: [1, 2, 3, 4].map((i) {
-                return FutureBuilder<Widget>(
-                  future: sliderCarousel(i),
-                  builder:
-                      (BuildContext context, AsyncSnapshot<Widget> snapshot) {
-                    if (snapshot.hasData) {
-                      return snapshot.data!;
-                    }
+      appBar: AppBar(
+        title: Text(widget.currentSong.title),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          CarouselSlider(
+            options: CarouselOptions(height: 400.0, viewportFraction: 0.95),
+            items: [
+              1,
+              2,
+            ].map((i) {
+              return FutureBuilder<Widget>(
+                future: sliderCarousel(i),
+                builder:
+                    (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                  if (snapshot.hasData) {
+                    return snapshot.data!;
+                  }
 
-                    return const CircularProgressIndicator();
-                  },
-                );
-              }).toList(),
-            ),
-            Column(
-              children: [
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child:
-                      Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    SizedBox(
-                        width: double.infinity,
-                        height: 80,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              left: 8, right: 8, bottom: 25),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(14),
-                            child: ColoredBox(
-                              color: Colors.deepPurple,
-                              child: Center(
-                                child: songNameLength(widget.currentSong.title),
-                              ),
+                  return const CircularProgressIndicator();
+                },
+              );
+            }).toList(),
+          ),
+          Column(
+            children: [
+              Align(
+                alignment: Alignment.bottomCenter,
+                child:
+                    Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                  SizedBox(
+                      width: double.infinity,
+                      height: 80,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8, right: 8, bottom: 25),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: ColoredBox(
+                            color: Colors.deepPurple,
+                            child: Center(
+                              child: songNameLength(widget.currentSong.title),
                             ),
-                          ),
-                        )),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: SliderTheme(
-                            data: SliderTheme.of(context).copyWith(
-                              activeTrackColor: Colors.deepPurple,
-                              inactiveTrackColor: Colors.deepPurpleAccent,
-                              trackShape: const RoundedRectSliderTrackShape(),
-                              trackHeight: 5.0,
-                              thumbColor: Colors.purple,
-                              thumbShape: const RoundSliderThumbShape(
-                                  enabledThumbRadius: 0),
-                              overlayShape: const RoundSliderOverlayShape(
-                                  overlayRadius: 8.0),
-                            ),
-                            child: FutureBuilder<int>(
-                                future: getSongDuration(),
-                                builder: (context, snapshot) {
-                                  return PositionSliderWidget(
-                                    player: widget.player,
-                                    maxPosition:
-                                        snapshot.hasData ? snapshot.data! : 10,
-                                  );
-                                }),
                           ),
                         ),
-                      ],
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.all(2),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            PlayPauseButtonWidget(
-                              player: widget.player,
-                              playing: playing,
-                              size: 64,
-                              setPlaying: widget.setPlaying,
-                            ),
-                          ],
-                        )),
-                  ]),
+                      )),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: Colors.deepPurple,
+                            inactiveTrackColor: Colors.deepPurpleAccent,
+                            trackShape: const RoundedRectSliderTrackShape(),
+                            trackHeight: 5.0,
+                            thumbColor: Colors.purple,
+                            thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 0),
+                            overlayShape: const RoundSliderOverlayShape(
+                                overlayRadius: 8.0),
+                          ),
+                          child: FutureBuilder<int>(
+                              future: getSongDuration(),
+                              builder: (context, snapshot) {
+                                return PositionSliderWidget(
+                                  player: widget.player,
+                                  maxPosition:
+                                      snapshot.hasData ? snapshot.data! : 10,
+                                );
+                              }),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.all(2),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          PlayPauseButtonWidget(
+                            player: widget.player,
+                            playing: playing,
+                            size: 64,
+                            setPlaying: widget.setPlaying,
+                          ),
+                        ],
+                      )),
+                ]),
+              ),
+            ],
+          ),
+          Container(
+            decoration: BoxDecoration(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                DropdownButton<TextKind>(
+                  value: textValue,
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: const TextStyle(color: Colors.deepPurple),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  onChanged: (TextKind? newValue) {
+                    setState(() {
+                      textValue = newValue!;
+                    });
+                  },
+                  items: getTexts(),
+                ),
+                DropdownButton<ImageKind>(
+                  value: imageValue,
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: const TextStyle(color: Colors.deepPurple),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  onChanged: (ImageKind? newValue) {
+                    setState(() {
+                      imageValue = newValue!;
+                    });
+                  },
+                  items: getImages(),
+                ),
+                DropdownButton<AudioKind>(
+                  value: audioValue,
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: const TextStyle(color: Colors.deepPurple),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  items: getAudios(),
+                  onChanged: (AudioKind? newValue) {
+                    setState(() {
+                      audioValue = newValue!;
+                    });
+                  },
                 ),
               ],
             ),
-          ],
-        ));
+          )
+        ],
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<AudioKind>> getAudios() {
+    List<String> titles = [];
+    List audios = widget.currentSong.audios;
+    if (audios.isEmpty) {
+      return [
+        const DropdownMenuItem(
+          value: AudioKind.song,
+          child: Text("No Audios"),
+        )
+      ];
+    }
+    List<DropdownMenuItem<AudioKind>> items = [];
+
+    for (int i = 0; i < audios.length; i++) {
+      AudioData audio = audios[i];
+      items.add(DropdownMenuItem<AudioKind>(
+        value: audio.kind,
+        child: Text(audio.kind.toString().substring(10)),
+      ));
+    }
+
+    return items;
+  }
+
+  List<DropdownMenuItem<ImageKind>> getImages() {
+    List<String> titles = [];
+    List images = widget.currentSong.images;
+    if (images.isEmpty) {
+      return [
+        const DropdownMenuItem(
+          value: ImageKind.cover,
+          child: Text("No Images"),
+        )
+      ];
+    }
+    List<DropdownMenuItem<ImageKind>> items = [];
+    for (int i = 0; i < images.length; i++) {
+      ImageData image = images[i];
+      items.add(DropdownMenuItem<ImageKind>(
+        value: image.kind,
+        child: Text(image.kind.toString().substring(10)),
+      ));
+    }
+    return items;
+  }
+
+  List<DropdownMenuItem<TextKind>> getTexts() {
+    List<String> titles = [];
+    List texts = widget.currentSong.texts;
+    if (texts.isEmpty) {
+      return [
+        const DropdownMenuItem(
+          value: TextKind.lyrics,
+          child: Text("No Texts"),
+        )
+      ];
+    }
+    List<DropdownMenuItem<TextKind>> items = [];
+    for (int i = 0; i < texts.length; i++) {
+      TextData text = texts[i];
+      items.add(DropdownMenuItem<TextKind>(
+        value: text.kind,
+        child: Text(text.kind.toString().substring(9)),
+      ));
+    }
+    return items;
   }
 
   Future<Widget> sliderCarousel(i) async {
     if (i == 1) {
-      return await Image.network(widget.currentSong.coverUri.toString());
+      if (imageValue == ImageKind.artist) {
+        return Image(
+            image: NetworkImage(widget.currentSong.images
+                .firstWhere((element) => element.kind == ImageKind.artist)
+                .uri
+                .toString()));
+      }
+      if (imageValue == ImageKind.cover) {
+        return Image(
+            image: NetworkImage(widget.currentSong.images
+                .firstWhere((element) => element.kind == ImageKind.cover)
+                .uri
+                .toString()));
+      } else {
+        return Image(image: NetworkImage(widget.currentSong.images.firstWhere((element) => element.kind == ImageKind.notes).uri.toString()));
+      }
     }
     if (i == 2) {
+      if (textValue == TextKind.lyrics){
       return KaraokeWidget(song: widget.currentSong, player: widget.player);
-    }
-    if (i == 3) {
-      return SelectAudioKindWidget(
-          player: widget.player, currentSong: widget.currentSong);
+      }if (textValue == TextKind.phonetics){
+        return Text((await widget.currentSong.texts.firstWhere((element) => element.kind == TextKind.phonetics).text).join(" "));
+      }else {
+        return Text((await widget.currentSong.texts.firstWhere((element) => element.kind == TextKind.translation).text).join(" "));
+      }
     } else {
       return ShowNotesWidget(
         songData: widget.currentSong,

@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:music_player/add_song_page.dart';
 import 'package:music_player/player.dart';
+import 'package:music_player/song_provider.dart';
+import 'package:music_player/tagger.dart';
 
 import 'config.dart';
 
@@ -39,22 +42,14 @@ class _MainOptionMenuWidgetState extends State<MainOptionMenuWidget> {
                 color: Colors.blue,
                 child: Column(
                   children: [
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                      child: TextField(
-                        onChanged: (text){
-                          setState(() {
-                          textInput = text;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Path to Json on Phone?',
-                        ),
-                      ),
-                    ),
-                    TextButton(onPressed: (){readJson(textInput);}, child: Text('Add Json')),
+                    
+                    TextButton(onPressed: (){
+                      Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddSongWidget()),
+              );
+                    }, child: Text('Add Json', style: TextStyle(color: Colors.white),)),
 
                     
                   ],
@@ -67,11 +62,6 @@ class _MainOptionMenuWidgetState extends State<MainOptionMenuWidget> {
     );
   }
 
-    Future<void> readJson(text) async {
-    final String response = await rootBundle.loadString(text);
-    final data = await json.decode(response);
-    setState(() {
-      result = data[""];
-    });
-  }
+  
+  
 }

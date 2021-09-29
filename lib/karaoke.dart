@@ -137,12 +137,17 @@ class Lyric {
       return Lyric("No Lyrics found", 0);
     }else {
     int index = line.indexOf("]");
+    try{
     String timeStamp = line.substring(1, index);
     String minutes = timeStamp.substring(0, 2);
     String seconds = timeStamp.substring(3).replaceAll(":", ".");
     double time = int.parse(minutes) * 60 + double.parse(seconds);
     String text = line.substring(index + 1);
     return Lyric(text, time);
+    } catch(e) {
+      return Lyric("No Lyrics found", 0);
+    }
+
     }
   }
 

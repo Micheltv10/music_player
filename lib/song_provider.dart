@@ -242,6 +242,9 @@ class NetworkSongData extends SongData {
   
   static Future<Duration> provideMidiDuration(Uri uri) async {
     final cachedUri = await Cache().get(uri);
+    if(cachedUri.scheme != 'file') {
+      return Future.value(Duration.zero);
+    }
     final file = File(cachedUri.toFilePath());
     final bytes = await file.readAsBytes();
     //final content = bytes.map((byte)=>byte.toInt()).toList();

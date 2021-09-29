@@ -93,13 +93,11 @@ class Player {
       pendingPlayer = null;
     }
     if (cachedUri.path.endsWith('.mid') || cachedUri.path.endsWith('.midi')) {
-      return _midiLoad(uri);
+      return _midiLoad(cachedUri);
     }
     if (cachedUri.isScheme("file")) {
-      final filePath = Uri.decodeFull(cachedUri.toString());
-      print(filePath);
-      pendingPlayer = OcarinaPlayer(filePath: filePath);
-      print(' Playerabcde ${pendingPlayer!.hashCode}.load(${filePath})}');
+      pendingPlayer = OcarinaPlayer(filePath: cachedUri.toFilePath());
+      print('player${pendingPlayer!.hashCode}.load(${cachedUri.toFilePath()})}');
       return pendingPlayer?.load() ?? Future.value(null);
     }
     final videoId = YoutubePlayer.convertUrlToId(uri.toString());

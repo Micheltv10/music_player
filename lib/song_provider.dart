@@ -177,7 +177,7 @@ class NetworkSongData extends SongData {
               AudioData(
                 durationProvider: (audio) =>
                     provideMp3Duration(audio.uri, tagger),
-                kind: AudioKind.guitar,
+                kind: AudioKind.pronunciation,
                 locale: Locales.und,
                 name: 'pronunciation',
                 uri: pronunciation.uri,

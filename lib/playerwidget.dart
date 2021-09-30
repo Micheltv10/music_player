@@ -37,6 +37,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   AudioKind audioValue = AudioKind.song;
   TextKind textValue = TextKind.lyrics;
   _PlayerWidgetState(this.playing);
+  CarouselController carouselController = CarouselController();
 
   songNameLength(songName) {
     if (songName.toString().length > 33) {
@@ -103,6 +104,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           CarouselSlider(
+            carouselController: carouselController,
             options: CarouselOptions(height: 400.0, viewportFraction: 0.95),
             items: [
               1,
@@ -209,6 +211,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                     setState(() {
                       textValue = newValue!;
                     });
+                    carouselController.jumpToPage(1);
                   },
                   items: getTexts(),
                 ),
@@ -226,6 +229,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                     setState(() {
                       imageValue = newValue!;
                     });
+                    carouselController.jumpToPage(2);
                   },
                   items: getImages(),
                 ),
@@ -240,10 +244,13 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                     color: Colors.deepPurpleAccent,
                   ),
                   items: getAudios(),
-                  onChanged: (AudioKind? newValue) {
+                  onChanged: (AudioKind? newValue) async{
                     setState(() {
                       audioValue = newValue!;
                     });
+                    var uri = widget.currentSong.audios.firstWhere((element) => element.kind == newValue).uri;
+                    await widget.player.load(uri);
+                    widget.player.play();
                   },
                 ),
               ],
@@ -269,6 +276,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
     for (int i = 0; i < audios.length; i++) {
       AudioData audio = audios[i];
+      print("getAudios Audio.kind ${audio.kind.toString().substring(10)}");
       items.add(DropdownMenuItem<AudioKind>(
         value: audio.kind,
         child: Text(audio.kind.toString().substring(10)),
@@ -418,16 +426,19 @@ class _PositionSliderWidgetState extends State<PositionSliderWidget> {
   @override
   Widget build(BuildContext context) {
     if ((position / 1000) > widget.maxPosition) {
-      position = widget.maxPosition.toInt() * 1000;
+      position = (widget.maxPosition.toInt() / 10).toInt();
     }
+    print("position =$position");
+    print('Max position = ${widget.maxPosition.toInt()}');
+
     return Column(
       children: [
         Slider(
-          value: (position / 1000),
+          value: (position / 100),
           min: 0,
           max: widget.maxPosition.toDouble(),
           onChanged: (double newValue) {
-            widget.player.seek(Duration(seconds: newValue.toInt()));
+            // widget.player.seek(Duration(seconds: newValue.toInt()));
           },
         ),
         /*Padding(

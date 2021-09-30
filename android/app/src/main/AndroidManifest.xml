@@ -5,7 +5,7 @@
    <application
         android:label="music_player"
         android:requestLegacyExternalStorage="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:name="androidx.multidex.MultiDexApplication" >
 
         <activity

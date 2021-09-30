@@ -45,7 +45,7 @@ class Cache {
 
     HttpClient client = new HttpClient();
     final request = await client.getUrl(uri);
-    request.headers.add("accept", 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9');
+    request.headers.add("accept", 'audio/midi,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9');
     request.headers.add('accept-encoding', 'gzip, deflate, br');
     request.headers.add('accept-language', 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7');
     request.headers.add('sec-ch-ua', '"Google Chrome";v="93", " Not;A Brand";v="99", "Chromium";v="93"');
@@ -59,10 +59,13 @@ class Cache {
     request.headers.add('user-agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36');
 
     final response = await request.close();
+    print('Cache.get($uri): status=${response.statusCode} headers=${response.headers}');
     if(response.statusCode != 200) {
-      print('Cache.get($uri): status=${response.statusCode}');
-      response.transform(utf8.decoder).listen((contents) => print(contents));
-      print('response=$response');
+      final contentType = response.headers.contentType;
+      final encoding = Encoding.getByName(contentType?.charset);
+      if(encoding !=null) {
+          response.transform(encoding.decoder).listen((contents) => print(contents));
+      }
       return uri;
     }
     final _ = await response.pipe(file.openWrite());

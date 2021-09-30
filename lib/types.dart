@@ -10,17 +10,6 @@ enum AudioKind {
   pronunciation,
   accompaniment,
   song,
-  firstVoice,
-  secondVoice,
-  thirdVoice,
-  guitar,
-  soprano,
-  alto,
-  tenor,
-  bass,
-  together,  
-  melody,
-  inCanon,
 }
 
 enum TextKind {
@@ -28,25 +17,24 @@ enum TextKind {
   phonetics,
   translation,
 }
-typedef DurationProvider = Future<Duration> Function(AudioData audio);
+
 class AudioData {
   final AudioKind kind;
   final String name;
   final Uri uri;
   final Locale locale;
-  Future<Duration> get duration => durationProvider(this);
-  final DurationProvider durationProvider; 
+  final Duration duration;
 
-  AudioData({required this.durationProvider, required this.kind, required this.locale, required this.name, required this.uri});
+  AudioData({required this.duration, required this.kind, required this.locale, required this.name, required this.uri});
 }
 
 class TextData {
   final TextKind kind;
   final String name;
-  final Future<List<String>> text;
+  final Uri uri;
   final Locale locale;
 
-  TextData({required this.locale, required this.kind, required this.name, required this.text});
+  TextData({required this.locale, required this.kind, required this.name, required this.uri});
 }
 
 class ImageData {
@@ -57,21 +45,17 @@ class ImageData {
   ImageData({required this.kind, required this.name, required this.uri});
 }
 class SongData {
-  static final defaultCoverUri = Uri.parse('assets://images/defaultImage.jpg');
   final int index;
   final String title;
   final String subtitle;
   final List<AudioData> audios;
   final List<ImageData> images;
   final List<TextData> texts;
-  Uri get songUri => audios.singleWhere((audio) => audio.kind == AudioKind.together).uri;
-  Uri get coverUri => images.singleWhere((image) => image.kind == ImageKind.cover).uri;
-  Future<Duration> get songDuration => audios.singleWhere((audio) => audio.kind == AudioKind.together).duration;
 
   SongData({required this.index, required this.subtitle, required this.audios, required this.images, required this.texts, required this.title});
 }
 
-typedef  SongComparator = int Function(SongData left, SongData right);
+typedef  int SongComparator(SongData left, SongData right);
 class SongComparators {
     static int compareAscendingByTitle(SongData left, SongData right) => left.title.compareTo(right.title);
     static int compareDescendingByTitle(SongData left, SongData right) => right.title.compareTo(left.title);
@@ -126,12 +110,12 @@ class TruePredicate implements SongPredicate {
   static const instance = TruePredicate(); 
 }
 class SongProvider {
-  final Future<Iterable<SongData>> songs;
+  final Iterable<SongData> songs;
   SongProvider(this.songs);
-  Future<Iterable<SongData>> filterAndSort({
+  Iterable<SongData> filterAndSort({
     SongPredicate predicate=TruePredicate.instance, 
     SongComparator comparator=SongComparators.compareNothing,
-    }) async {
-      return (await songs).where((song) => predicate.test(song)).toList()..sort(comparator);
+    }) {
+      return songs.where((song) => predicate.test(song)).toList()..sort(comparator);
   }
 }

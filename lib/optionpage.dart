@@ -65,8 +65,8 @@ class _MainOptionMenuWidgetState extends State<MainOptionMenuWidget> {
                     icon: const Icon(Icons.brightness_high),
                     label: Text('Switch Theme')),
                 Center(child: Text('Switch Colors', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),)),
-                ColoredBox(
-                  color: pickerColor,
+                Container(
+                  decoration: BoxDecoration(color: pickerColor, borderRadius: BorderRadius.all(Radius.circular(30))),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ColorPicker(
@@ -79,8 +79,8 @@ class _MainOptionMenuWidgetState extends State<MainOptionMenuWidget> {
                     ),
                   ),
                 ),
-                ColoredBox(
-                  color: pickerDeepColor,
+                Container(
+                  decoration: BoxDecoration(color: pickerDeepColor, borderRadius: BorderRadius.all(Radius.circular(30))),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ColorPicker(
@@ -93,8 +93,8 @@ class _MainOptionMenuWidgetState extends State<MainOptionMenuWidget> {
                     ),
                   ),
                 ),
-                ColoredBox(
-                  color: pickerAccentColor,
+                Container(
+                  decoration: BoxDecoration(color: pickerAccentColor, borderRadius: BorderRadius.all(Radius.circular(30))),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ColorPicker(

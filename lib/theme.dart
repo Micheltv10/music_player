@@ -23,7 +23,6 @@ class MyTheme with ChangeNotifier {
   }
   void switchColor(Color newColor){
     color = newColor;
-    print('Switched Color');
     notifyListeners();
   }
   void switchDeepColor(Color newColor){

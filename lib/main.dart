@@ -5,8 +5,10 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:marquee/marquee.dart';
 import 'package:music_player/player.dart';
 import 'package:music_player/playpausebutton.dart';
+import 'package:music_player/theme.dart';
 import 'helpers/get_directory_music.dart';
 import 'package:audiotagger/audiotagger.dart';
+import 'optionpage.dart';
 import 'playerwidget.dart';
 import 'config.dart';
 
@@ -190,8 +192,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 return const CircularProgressIndicator();
                               },
                             ),
-                            decoration: const BoxDecoration(
-                                color: Colors.deepPurple,
+                            decoration: BoxDecoration(
+                                color: MyTheme().currentDeepColor(),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10))),
                           ),
@@ -229,11 +231,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: Colors.deepPurple,
-                      inactiveTrackColor: Colors.deepPurpleAccent,
+                      activeTrackColor: MyTheme().currentDeepColor(),
+                      inactiveTrackColor: MyTheme().currentAccentColor(),
                       trackShape: const RoundedRectSliderTrackShape(),
                       trackHeight: 5.0,
-                      thumbColor: Colors.purple,
+                      thumbColor: MyTheme().currentDeepColor(),
                       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0),
                       overlayShape: const RoundSliderOverlayShape(overlayRadius: 8.0),
                     ),
@@ -263,6 +265,22 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: <Widget>[
+          Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MainOptionMenuWidget(
+                              player: widget.player,
+                            )),
+                  );
+                },
+                child: const Icon(Icons.more_vert),
+              )),
+        ],
       ),
       body: Stack(
         alignment: Alignment.center,
@@ -316,7 +334,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ],
                         child: Container(
                           decoration: BoxDecoration(
-                              border: Border.all(color: Colors.deepPurple),
+                              border: Border.all(color: MyTheme().currentDeepColor()),
                               borderRadius: const BorderRadius.all(
                                 Radius.circular(5),
                               )),

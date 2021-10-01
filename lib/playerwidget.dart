@@ -5,6 +5,7 @@ import 'package:music_player/karaoke.dart';
 import 'package:music_player/player.dart';
 import 'package:music_player/playpausebutton.dart';
 import 'package:audiotagger/audiotagger.dart';
+import 'package:music_player/theme.dart';
 import 'main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
@@ -136,7 +137,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(14),
                             child: ColoredBox(
-                              color: Colors.deepPurple,
+                              color: MyTheme().currentDeepColor(),
                               child: Center(
                                 child: songNameLength(widget.currentSong),
                               ),
@@ -148,11 +149,11 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                       children: [
                         SliderTheme(
                           data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: Colors.deepPurple,
-                      inactiveTrackColor: Colors.deepPurpleAccent,
+                      activeTrackColor: MyTheme().currentDeepColor(),
+                      inactiveTrackColor: MyTheme().currentAccentColor(),
                       trackShape: const RoundedRectSliderTrackShape(),
                       trackHeight: 8.0,
-                      thumbColor: Colors.deepPurple,
+                      thumbColor: MyTheme().currentDeepColor(),
                       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0),
                       overlayShape: const RoundSliderOverlayShape(overlayRadius: 8.0),
                     ),

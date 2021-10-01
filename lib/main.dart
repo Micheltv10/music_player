@@ -8,6 +8,7 @@ import 'package:music_player/player.dart';
 import 'package:music_player/playpausebutton.dart';
 import 'package:music_player/tagger.dart';
 import 'package:music_player/taize_song_provider.dart';
+import 'package:music_player/theme.dart';
 import 'package:music_player/types.dart';
 import 'config.dart';
 import 'playerwidget.dart';
@@ -220,10 +221,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             },
                           ),
                           */
-                          decoration: const BoxDecoration(
-                              color: Colors.deepPurple,
+                          decoration: BoxDecoration(
+                              color: MyTheme().currentDeepColor(),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
+                                  const BorderRadius.all(Radius.circular(10))),
                         ),
                       ),
                     ),
@@ -280,11 +281,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: Colors.deepPurple,
-                    inactiveTrackColor: Colors.deepPurpleAccent,
+                    activeTrackColor: MyTheme().currentDeepColor(),
+                    inactiveTrackColor: MyTheme().currentAccentColor(),
                     trackShape: const RoundedRectSliderTrackShape(),
                     trackHeight: 5.0,
-                    thumbColor: Colors.purple,
+                    thumbColor: MyTheme().currentColor(),
                     thumbShape:
                         const RoundSliderThumbShape(enabledThumbRadius: 0),
                     overlayShape:
@@ -370,7 +371,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                     child: Container(
                       decoration: BoxDecoration(
-                          border: Border.all(color: Colors.deepPurple),
+                          border: Border.all(color: MyTheme().currentDeepColor()),
                           borderRadius: const BorderRadius.all(
                             Radius.circular(5),
                           )),

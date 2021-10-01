@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:music_player/add_song_page.dart';
 import 'package:music_player/player.dart';
 import 'package:music_player/song_provider.dart';
 import 'package:music_player/tagger.dart';
-
+import 'package:music_player/theme.dart';
 import 'config.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class MainOptionMenuWidget extends StatefulWidget {
   final Player player;
@@ -19,49 +21,97 @@ class MainOptionMenuWidget extends StatefulWidget {
 }
 
 class _MainOptionMenuWidgetState extends State<MainOptionMenuWidget> {
-  String textInput = "s";
-  dynamic result = "";
+  Color pickerColor = MyTheme().currentColor();
+  Color pickerDeepColor = MyTheme().currentDeepColor();
+  Color pickerAccentColor = MyTheme().currentAccentColor();
+ 
+
+  void changeDeepColor(Color color) {
+    setState(() {
+      pickerDeepColor = color;
+    });
+    MyTheme().switchDeepColor(color);
+  }
+  void changeColor(Color color) {
+    setState(() {
+      pickerColor = color;
+    });
+    MyTheme().switchColor(color);
+  }
+  void changeAccentColor(Color color) {
+    setState(() {
+      pickerAccentColor = color;
+    });
+    MyTheme().switchAccentColor(color);
+  }
 
   @override
   Widget build(BuildContext context) {
+    MediaQueryData queryData = MediaQuery.of(context);
     return Scaffold(
       appBar: AppBar(),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Column(
-            children: [
-              TextButton.icon(
-                  onPressed: () {
-                    currentTheme.switchTheme();
-                  },
-                  icon: const Icon(Icons.brightness_high),
-                  label: Text('Switch Theme')),
-              ColoredBox(
-                color: Colors.blue,
-                child: Column(
-                  children: [
-                    
-                    TextButton(onPressed: (){
-                      Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => AddSongWidget()),
-              );
-                    }, child: Text('Add Json', style: TextStyle(color: Colors.white),)),
-
-                    
-                  ],
+          SizedBox(
+            height: queryData.size.height * 0.9,
+            child: ListView(
+              children: [
+                TextButton.icon(
+                    onPressed: () {
+                      currentTheme.switchTheme();
+                    },
+                    icon: const Icon(Icons.brightness_high),
+                    label: Text('Switch Theme')),
+                Center(child: Text('Switch Colors', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),)),
+                ColoredBox(
+                  color: pickerColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ColorPicker(
+                      showLabel: false,
+                      pickerAreaBorderRadius: BorderRadius.all(Radius.circular(10)),
+                      pickerAreaHeightPercent: 0.7,
+                      pickerColor: pickerColor,
+                      onColorChanged: changeColor,
+                      colorPickerWidth: 200,
+                    ),
+                  ),
                 ),
-              )
-            ],
+                ColoredBox(
+                  color: pickerDeepColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ColorPicker(
+                      showLabel: false,
+                      pickerAreaBorderRadius: BorderRadius.all(Radius.circular(10)),
+                      pickerAreaHeightPercent: 0.7,
+                      pickerColor: pickerDeepColor,
+                      onColorChanged: changeDeepColor,
+                      colorPickerWidth: 200,
+                    ),
+                  ),
+                ),
+                ColoredBox(
+                  color: pickerAccentColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ColorPicker(
+                      showLabel: false,
+                      pickerAreaBorderRadius: BorderRadius.all(Radius.circular(10)),
+                      pickerAreaHeightPercent: 0.7,
+                      pickerColor: pickerAccentColor,
+                      onColorChanged: changeAccentColor,
+                      colorPickerWidth: 200,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           )
         ],
       ),
     );
   }
-
-  
-  
 }

@@ -5,6 +5,7 @@ import 'package:music_player/karaoke.dart';
 import 'package:music_player/player.dart';
 import 'package:music_player/playpausebutton.dart';
 import 'package:music_player/tagger.dart';
+import 'package:music_player/theme.dart';
 import 'package:music_player/types.dart';
 import 'main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -38,6 +39,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   TextKind textValue = TextKind.lyrics;
   _PlayerWidgetState(this.playing);
   CarouselController carouselController = CarouselController();
+  
 
   songNameLength(songName) {
     if (songName.toString().length > 33) {
@@ -138,7 +140,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(14),
                           child: ColoredBox(
-                            color: Colors.deepPurple,
+                            color: MyTheme().currentDeepColor(),
                             child: Center(
                               child: songNameLength(widget.currentSong.title),
                             ),
@@ -152,11 +154,11 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                         padding: const EdgeInsets.all(12.0),
                         child: SliderTheme(
                           data: SliderTheme.of(context).copyWith(
-                            activeTrackColor: Colors.deepPurple,
-                            inactiveTrackColor: Colors.deepPurpleAccent,
+                            activeTrackColor: MyTheme().currentDeepColor(),
+                            inactiveTrackColor: MyTheme().currentAccentColor(),
                             trackShape: const RoundedRectSliderTrackShape(),
                             trackHeight: 5.0,
-                            thumbColor: Colors.purple,
+                            thumbColor: MyTheme().currentColor(),
                             thumbShape: const RoundSliderThumbShape(
                                 enabledThumbRadius: 0),
                             overlayShape: const RoundSliderOverlayShape(
@@ -202,10 +204,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                   icon: const Icon(Icons.arrow_downward),
                   iconSize: 24,
                   elevation: 16,
-                  style: const TextStyle(color: Colors.deepPurple),
+                  style: TextStyle(color: MyTheme().currentDeepColor()),
                   underline: Container(
                     height: 2,
-                    color: Colors.deepPurpleAccent,
+                    color: MyTheme().currentAccentColor(),
                   ),
                   onChanged: (TextKind? newValue) {
                     setState(() {
@@ -220,10 +222,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                   icon: const Icon(Icons.arrow_downward),
                   iconSize: 24,
                   elevation: 16,
-                  style: const TextStyle(color: Colors.deepPurple),
+                  style: TextStyle(color: MyTheme().currentDeepColor()),
                   underline: Container(
                     height: 2,
-                    color: Colors.deepPurpleAccent,
+                    color: MyTheme().currentAccentColor(),
                   ),
                   onChanged: (ImageKind? newValue) {
                     setState(() {
@@ -238,10 +240,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                   icon: const Icon(Icons.arrow_downward),
                   iconSize: 24,
                   elevation: 16,
-                  style: const TextStyle(color: Colors.deepPurple),
+                  style: TextStyle(color: MyTheme().currentDeepColor()),
                   underline: Container(
                     height: 2,
-                    color: Colors.deepPurpleAccent,
+                    color: MyTheme().currentAccentColor(),
                   ),
                   items: getAudios(),
                   onChanged: (AudioKind? newValue) async{
@@ -353,9 +355,31 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       if (textValue == TextKind.lyrics){
       return KaraokeWidget(song: widget.currentSong, player: widget.player);
       }if (textValue == TextKind.phonetics){
-        return Text((await widget.currentSong.texts.firstWhere((element) => element.kind == TextKind.phonetics).text).join(" "));
+        return ListView(
+          children: [
+            Text(
+              (await widget.currentSong.texts.firstWhere((element) => element.kind == TextKind.phonetics).text).join("\n"),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.normal,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        );
       }else {
-        return Text((await widget.currentSong.texts.firstWhere((element) => element.kind == TextKind.translation).text).join(" "));
+        return ListView(
+          children: [
+            Text(
+              (await widget.currentSong.texts.firstWhere((element) => element.kind == TextKind.translation).text).join("\n"),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.normal,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        );
       }
     } else {
       return ShowNotesWidget(
